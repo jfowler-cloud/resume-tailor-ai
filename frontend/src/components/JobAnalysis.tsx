@@ -9,7 +9,7 @@ import Textarea from '@cloudscape-design/components/textarea'
 import Input from '@cloudscape-design/components/input'
 import Button from '@cloudscape-design/components/button'
 import Alert from '@cloudscape-design/components/alert'
-import Select from '@cloudscape-design/components/select'
+import Multiselect from '@cloudscape-design/components/select'
 import { awsConfig } from '../config/amplify'
 
 interface JobAnalysisProps {
@@ -22,7 +22,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
   const [jobDescription, setJobDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [customInstructions, setCustomInstructions] = useState('')
-  const [selectedResume, setSelectedResume] = useState<{ label: string; value: string } | null>(null)
+  const [selectedResumes, setSelectedResumes] = useState<{ label: string; value: string }[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,8 +37,8 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
       return
     }
 
-    if (!selectedResume) {
-      setError('Please select a resume')
+    if (selectedResumes.length === 0) {
+      setError('Please select at least one resume')
       return
     }
 
@@ -63,7 +63,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         jobId,
         userId,
         jobDescription: jobDescription.trim(),
-        resumeS3Key: selectedResume.value,
+        resumeS3Keys: selectedResumes.map(r => r.value),
         companyName: companyName.trim() || undefined,
         customInstructions: customInstructions.trim() || undefined,
         userEmail: session.tokens?.idToken?.payload.email as string
@@ -81,7 +81,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
       setJobDescription('')
       setCompanyName('')
       setCustomInstructions('')
-      setSelectedResume(null)
+      setSelectedResumes([])
     } catch (err) {
       console.error('Submission error:', err)
       setError(err instanceof Error ? err.message : 'Failed to start analysis')
@@ -109,14 +109,14 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         )}
 
         <FormField
-          label="Select Resume"
-          description="Choose which resume to tailor for this job"
+          label="Select Resumes"
+          description="Choose one or more resumes to use as context for tailoring"
         >
-          <Select
-            selectedOption={selectedResume}
-            onChange={({ detail }) => setSelectedResume(detail.selectedOption)}
+          <Multiselect
+            selectedOptions={selectedResumes}
+            onChange={({ detail }) => setSelectedResumes(detail.selectedOptions)}
             options={resumeOptions}
-            placeholder="Select a resume"
+            placeholder="Select resumes"
             empty="No resumes uploaded yet"
             disabled={uploadedResumes.length === 0}
           />
@@ -161,7 +161,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
           variant="primary"
           onClick={handleSubmit}
           loading={submitting}
-          disabled={!jobDescription.trim() || !selectedResume || uploadedResumes.length === 0}
+          disabled={!jobDescription.trim() || selectedResumes.length === 0 || uploadedResumes.length === 0}
         >
           Analyze & Tailor Resume
         </Button>

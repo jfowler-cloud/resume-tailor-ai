@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchAuthSession } from 'aws-amplify/auth'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
 import SpaceBetween from '@cloudscape-design/components/space-between'
@@ -21,9 +21,41 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
+  useEffect(() => {
+    loadExistingResumes()
+  }, [userId])
+
+  const loadExistingResumes = async () => {
+    try {
+      const session = await fetchAuthSession()
+      const credentials = session.credentials
+      if (!credentials) return
+
+      const s3Client = new S3Client({
+        region: awsConfig.region,
+        credentials: credentials
+      })
+
+      const response = await s3Client.send(
+        new ListObjectsV2Command({
+          Bucket: awsConfig.bucketName,
+          Prefix: `uploads/${userId}/`
+        })
+      )
+
+      if (response.Contents) {
+        response.Contents.forEach(obj => {
+          if (obj.Key) onResumeUploaded(obj.Key)
+        })
+      }
+    } catch (err) {
+      console.error('Failed to load existing resumes:', err)
+    }
+  }
+
   const handleUpload = async () => {
     if (files.length === 0) {
-      setError('Please select a file to upload')
+      setError('Please select at least one file to upload')
       return
     }
 
@@ -32,7 +64,6 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
     setSuccess(null)
 
     try {
-      // Get AWS credentials from Cognito
       const session = await fetchAuthSession()
       const credentials = session.credentials
 
@@ -45,26 +76,28 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
         credentials: credentials
       })
 
-      const file = files[0]
-      const timestamp = Date.now()
-      const resumeKey = `uploads/${userId}/${timestamp}-${file.name}`
+      const uploadedKeys: string[] = []
 
-      // Read file content
-      const fileContent = await file.text()
+      for (const file of files) {
+        const timestamp = Date.now() + uploadedKeys.length
+        const resumeKey = `uploads/${userId}/${timestamp}-${file.name}`
+        const fileContent = await file.text()
 
-      // Upload to S3
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: awsConfig.bucketName,
-          Key: resumeKey,
-          Body: fileContent,
-          ContentType: file.type || 'text/plain'
-        })
-      )
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: awsConfig.bucketName,
+            Key: resumeKey,
+            Body: fileContent,
+            ContentType: file.type || 'text/plain'
+          })
+        )
 
-      setSuccess(`Resume uploaded successfully: ${file.name}`)
+        uploadedKeys.push(resumeKey)
+        onResumeUploaded(resumeKey)
+      }
+
+      setSuccess(`${uploadedKeys.length} resume(s) uploaded successfully`)
       setFiles([])
-      onResumeUploaded(resumeKey)
     } catch (err) {
       console.error('Upload error:', err)
       setError(err instanceof Error ? err.message : 'Failed to upload resume')
@@ -78,7 +111,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
       header={
         <Header
           variant="h2"
-          description="Upload your resume in Markdown or text format"
+          description="Upload one or more resumes in Markdown or text format"
         >
           Upload Resume
         </Header>
@@ -97,13 +130,14 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
         )}
 
         <FormField
-          label="Resume File"
-          description="Upload your resume in .md or .txt format"
+          label="Resume Files"
+          description="Upload one or more resumes in .md or .txt format"
         >
           <FileUpload
             value={files}
             onChange={({ detail }) => setFiles(detail.value)}
             accept=".md,.txt"
+            multiple
             i18nStrings={{
               uploadButtonText: e => e ? 'Choose files' : 'Choose file',
               dropzoneText: e => e ? 'Drop files to upload' : 'Drop file to upload',
@@ -115,7 +149,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
             showFileLastModified
             showFileSize
             showFileThumbnail
-            tokenLimit={1}
+            tokenLimit={5}
           />
         </FormField>
 
@@ -125,7 +159,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
           loading={uploading}
           disabled={files.length === 0}
         >
-          Upload Resume
+          Upload Resume{files.length > 1 ? 's' : ''}
         </Button>
       </SpaceBetween>
     </Container>

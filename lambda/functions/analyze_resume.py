@@ -84,7 +84,7 @@ Be honest and thorough. Return ONLY valid JSON."""
         return {
             'statusCode': 200,
             'jobId': event.get('jobId'),
-            'resumeS3Key': resume_key,
+            'resumeS3Keys': resume_keys,
             'analysis': analysis,
             'fitScore': analysis.get('fitScore', 0),
             'matchedSkills': analysis.get('matchedSkills', []),

@@ -31,21 +31,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     try:
         bucket_name = os.environ['BUCKET_NAME']
-        resume_key = event.get('resumeS3Key', '')
+        resume_keys = event.get('resumeS3Keys', [event.get('resumeS3Key', '')])
+        if isinstance(resume_keys, str):
+            resume_keys = [resume_keys]
+        
         parsed_job = event.get('parsedJob', {})
         analysis = event.get('analysis', {})
         job_description = event.get('jobDescription', '')
         custom_instructions = event.get('customInstructions', '')
         
-        # Download original resume
-        response = s3.get_object(Bucket=bucket_name, Key=resume_key)
-        original_resume = response['Body'].read().decode('utf-8')
+        # Download all resumes
+        resumes = []
+        for key in resume_keys:
+            if key:
+                response = s3.get_object(Bucket=bucket_name, Key=key)
+                content = response['Body'].read().decode('utf-8')
+                resumes.append(content)
+        
+        primary_resume = resumes[0] if resumes else ''
+        additional_context = '\n\n---ADDITIONAL RESUME VERSION---\n\n'.join(resumes[1:]) if len(resumes) > 1 else ''
+        context_section = f"\n\nADDITIONAL RESUME VERSIONS FOR CONTEXT:\n{additional_context}\n" if additional_context else ""
         
         # Prepare tailoring prompt with steering doc approach
         prompt = f"""You are an expert resume writer. Create a tailored version of this resume for the specific job posting.
 
-ORIGINAL RESUME:
-{original_resume}
+PRIMARY RESUME TO TAILOR:
+{primary_resume}
+{context_section}
 
 JOB DESCRIPTION:
 {job_description}
