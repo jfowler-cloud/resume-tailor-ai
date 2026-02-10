@@ -204,7 +204,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(10),
       memorySize: 2048,
       layers: [sharedLayer],
     });
