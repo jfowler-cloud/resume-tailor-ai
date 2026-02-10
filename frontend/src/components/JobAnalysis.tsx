@@ -21,6 +21,7 @@ interface JobAnalysisProps {
 export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }: JobAnalysisProps) {
   const [jobDescription, setJobDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
+  const [customInstructions, setCustomInstructions] = useState('')
   const [selectedResume, setSelectedResume] = useState<{ label: string; value: string } | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +65,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         jobDescription: jobDescription.trim(),
         resumeS3Key: selectedResume.value,
         companyName: companyName.trim() || undefined,
+        customInstructions: customInstructions.trim() || undefined,
         userEmail: session.tokens?.idToken?.payload.email as string
       }
 
@@ -78,6 +80,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
       onJobSubmitted(jobId)
       setJobDescription('')
       setCompanyName('')
+      setCustomInstructions('')
       setSelectedResume(null)
     } catch (err) {
       console.error('Submission error:', err)
@@ -115,6 +118,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
             options={resumeOptions}
             placeholder="Select a resume"
             empty="No resumes uploaded yet"
+            disabled={uploadedResumes.length === 0}
           />
         </FormField>
 
@@ -141,11 +145,23 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
           />
         </FormField>
 
+        <FormField
+          label="Custom Instructions (Optional)"
+          description="Add specific guidance for the AI (e.g., 'Emphasize leadership experience' or 'Don't enhance technical skills too much')"
+        >
+          <Textarea
+            value={customInstructions}
+            onChange={({ detail }) => setCustomInstructions(detail.value)}
+            placeholder="e.g., Focus on my recent work at Company X, downplay older roles..."
+            rows={3}
+          />
+        </FormField>
+
         <Button
           variant="primary"
           onClick={handleSubmit}
           loading={submitting}
-          disabled={!jobDescription.trim() || !selectedResume}
+          disabled={!jobDescription.trim() || !selectedResume || uploadedResumes.length === 0}
         >
           Analyze & Tailor Resume
         </Button>

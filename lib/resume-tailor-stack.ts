@@ -16,7 +16,6 @@ export class ResumeTailorStack extends cdk.Stack {
     // Cognito User Pool for authentication
     const userPool = new cognito.UserPool(this, 'UserPool', {
       userPoolName: 'ResumeTailorUsers',
-      selfSignUpEnabled: true,
       signInAliases: {
         email: true,
       },
@@ -38,6 +37,7 @@ export class ResumeTailorStack extends cdk.Stack {
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      selfSignUpEnabled: false,
     });
 
     // User Pool Client
@@ -164,7 +164,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // Lambda Layer for shared dependencies
     const sharedLayer = new lambda.LayerVersion(this, 'SharedLayer', {
       code: lambda.Code.fromAsset('lambda/layers/shared'),
-      compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_14],
       description: 'Shared utilities and dependencies',
     });
 
@@ -173,7 +173,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 1. Parse Job Description
     const parseJobFn = new lambda.Function(this, 'ParseJobFunction', {
       functionName: 'ResumeTailor-ParseJob',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'parse_job.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -186,7 +186,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 2. Analyze Resume Fit
     const analyzeResumeFn = new lambda.Function(this, 'AnalyzeResumeFunction', {
       functionName: 'ResumeTailor-AnalyzeResume',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'analyze_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -199,7 +199,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 3. Generate Tailored Resume
     const generateResumeFn = new lambda.Function(this, 'GenerateResumeFunction', {
       functionName: 'ResumeTailor-GenerateResume',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'generate_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -212,7 +212,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 4. ATS Optimization
     const atsOptimizeFn = new lambda.Function(this, 'ATSOptimizeFunction', {
       functionName: 'ResumeTailor-ATSOptimize',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'ats_optimize.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -225,7 +225,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 5. Generate Cover Letter
     const coverLetterFn = new lambda.Function(this, 'CoverLetterFunction', {
       functionName: 'ResumeTailor-CoverLetter',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'cover_letter.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -238,7 +238,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 6. Critical Review
     const criticalReviewFn = new lambda.Function(this, 'CriticalReviewFunction', {
       functionName: 'ResumeTailor-CriticalReview',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'critical_review.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -251,7 +251,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 7. Save Results
     const saveResultsFn = new lambda.Function(this, 'SaveResultsFunction', {
       functionName: 'ResumeTailor-SaveResults',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'save_results.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
@@ -264,7 +264,7 @@ export class ResumeTailorStack extends cdk.Stack {
     // 8. Send Notification (optional)
     const notifyFn = new lambda.Function(this, 'NotifyFunction', {
       functionName: 'ResumeTailor-Notify',
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'notify.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,

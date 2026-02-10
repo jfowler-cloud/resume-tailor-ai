@@ -35,6 +35,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         parsed_job = event.get('parsedJob', {})
         analysis = event.get('analysis', {})
         job_description = event.get('jobDescription', '')
+        custom_instructions = event.get('customInstructions', '')
         
         # Download original resume
         response = s3.get_object(Bucket=bucket_name, Key=resume_key)
@@ -58,6 +59,10 @@ FIT ANALYSIS:
 - Missing Skills: {', '.join(analysis.get('missingSkills', []))}
 - Strengths: {', '.join(analysis.get('strengths', []))}
 - Gaps: {', '.join(analysis.get('gaps', []))}
+
+{f'CUSTOM INSTRUCTIONS FROM USER:
+{custom_instructions}
+' if custom_instructions else ''}
 
 INSTRUCTIONS:
 {PROFESSIONAL_REWRITE_PROMPT}
