@@ -6,6 +6,7 @@ import Tabs from '@cloudscape-design/components/tabs'
 import ResumeUpload from './ResumeUpload'
 import JobAnalysis from './JobAnalysis'
 import Results from './Results'
+import ResumeManagement from './ResumeManagement'
 import { AuthUser } from 'aws-amplify/auth'
 
 interface DashboardProps {

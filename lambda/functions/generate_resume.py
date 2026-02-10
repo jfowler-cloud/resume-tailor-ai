@@ -5,6 +5,7 @@ Creates customized resume optimized for specific job posting
 import json
 import os
 import boto3
+from datetime import datetime
 from botocore.config import Config
 from extract_json import extract_json_from_text
 from typing import Dict, Any
@@ -159,6 +160,20 @@ Return ONLY valid JSON."""
         )
         
         print(f"Saved tailored resume to S3: {tailored_key}")
+        
+        # Also save to uploads folder for reuse
+        user_id = event.get('userId', 'unknown')
+        timestamp = int(datetime.now().timestamp() * 1000)
+        reusable_key = f"uploads/{user_id}/{timestamp}-tailored-{job_id[:8]}.md"
+        
+        s3.put_object(
+            Bucket=bucket_name,
+            Key=reusable_key,
+            Body=tailored_resume.encode('utf-8'),
+            ContentType='text/markdown'
+        )
+        
+        print(f"Saved reusable copy to: {reusable_key}")
         
         return {
             'statusCode': 200,
