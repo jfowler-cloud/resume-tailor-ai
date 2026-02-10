@@ -182,6 +182,52 @@ export default function Results({ jobId }: ResultsProps) {
     URL.revokeObjectURL(url)
   }
 
+  const downloadResumePDF = () => {
+    if (!tailoredResume) return
+    
+    // Create a simple HTML version for PDF printing
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Resume</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
+    h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
+    p { margin: 8px 0; }
+    ul { margin: 8px 0; padding-left: 20px; }
+    strong { font-weight: bold; }
+    @media print { body { margin: 0; padding: 20px; } }
+  </style>
+</head>
+<body>
+${tailoredResume.split('\n').map(line => {
+  if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
+  if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
+  if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
+  if (line.startsWith('- ')) return `<li>${line.substring(2)}</li>`
+  if (line.startsWith('**') && line.endsWith('**')) return `<p><strong>${line.slice(2, -2)}</strong></p>`
+  if (line.trim() === '') return '<br>'
+  return `<p>${line}</p>`
+}).join('\n')}
+</body>
+</html>
+    `
+    
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const printWindow = window.open(url, '_blank')
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
   const downloadCoverLetter = () => {
     if (!coverLetter) return
     const blob = new Blob([coverLetter], { type: 'text/plain' })
@@ -359,9 +405,14 @@ export default function Results({ jobId }: ResultsProps) {
         {tailoredResume && (
           <ExpandableSection headerText="Tailored Resume" defaultExpanded>
             <SpaceBetween size="m">
-              <Button onClick={downloadResume} iconName="download">
-                Download Resume (Markdown)
-              </Button>
+              <SpaceBetween direction="horizontal" size="xs">
+                <Button onClick={downloadResume} iconName="download">
+                  Download Markdown
+                </Button>
+                <Button onClick={downloadResumePDF} iconName="file">
+                  Print as PDF
+                </Button>
+              </SpaceBetween>
               <Box>
                 <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                   {tailoredResume}

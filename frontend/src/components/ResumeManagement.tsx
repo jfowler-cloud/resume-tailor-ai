@@ -103,6 +103,68 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
     }
   }
 
+  const printResumePDF = async (item: ResumeItem) => {
+    try {
+      const session = await fetchAuthSession()
+      const credentials = session.credentials
+      if (!credentials) return
+
+      const s3Client = new S3Client({
+        region: awsConfig.region,
+        credentials: credentials
+      })
+
+      const response = await s3Client.send(
+        new GetObjectCommand({
+          Bucket: awsConfig.bucketName,
+          Key: item.key
+        })
+      )
+
+      const content = await response.Body?.transformToString()
+      if (!content) return
+
+      const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${item.name}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
+    h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
+    p { margin: 8px 0; }
+    ul { margin: 8px 0; padding-left: 20px; }
+    @media print { body { margin: 0; padding: 20px; } }
+  </style>
+</head>
+<body>
+${content.split('\n').map(line => {
+  if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
+  if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
+  if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
+  if (line.startsWith('- ')) return `<li>${line.substring(2)}</li>`
+  if (line.trim() === '') return '<br>'
+  return `<p>${line}</p>`
+}).join('\n')}
+</body>
+</html>
+      `
+      
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const printWindow = window.open(url, '_blank')
+      if (printWindow) {
+        printWindow.onload = () => printWindow.print()
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch (err) {
+      console.error('Failed to print resume:', err)
+    }
+  }
+
   const downloadAll = async () => {
     for (const item of selectedItems) {
       await downloadResume(item)
@@ -220,7 +282,8 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
             header: 'Actions',
             cell: item => (
               <SpaceBetween direction="horizontal" size="xs">
-                <Button onClick={() => downloadResume(item)}>Download</Button>
+                <Button onClick={() => downloadResume(item)} iconName="download">Download</Button>
+                <Button onClick={() => printResumePDF(item)} iconName="file">PDF</Button>
                 <Button onClick={() => deleteResume(item)}>Delete</Button>
               </SpaceBetween>
             )
