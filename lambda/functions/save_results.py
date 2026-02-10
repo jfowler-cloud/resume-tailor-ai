@@ -26,7 +26,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         job_id = event.get('jobId', '')
         user_id = event.get('userId', 'anonymous')
-        timestamp = int(datetime.utcnow().timestamp() * 1000)
+        
+        # Extract timestamp from jobId (format: job-1770764725413)
+        timestamp = int(job_id.split('-')[1]) if '-' in job_id else int(datetime.utcnow().timestamp() * 1000)
         
         # Extract critique data from analysis
         analysis_data = event.get('analysis', {})

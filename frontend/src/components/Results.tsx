@@ -118,6 +118,9 @@ export default function Results({ jobId }: ResultsProps) {
 
       if (response.Item) {
         const item = unmarshall(response.Item)
+        console.log('DynamoDB item:', item)
+        console.log('fitScore:', item.fitScore)
+        console.log('matchedSkills:', item.matchedSkills)
         setAnalysisData({
           fitScore: item.fitScore,
           matchedSkills: item.matchedSkills,
@@ -128,6 +131,12 @@ export default function Results({ jobId }: ResultsProps) {
           recommendations: item.recommendations,
           actionableSteps: item.actionableSteps
         })
+        console.log('analysisData set:', {
+          fitScore: item.fitScore,
+          matchedSkills: item.matchedSkills
+        })
+      } else {
+        console.log('No DynamoDB item found for jobId:', jobId, 'timestamp:', timestamp)
       }
     } catch (err) {
       console.error('Fetch analysis data error:', err)
