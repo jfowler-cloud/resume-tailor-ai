@@ -185,7 +185,35 @@ export default function Results({ jobId }: ResultsProps) {
   const downloadResumePDF = () => {
     if (!tailoredResume) return
     
-    // Create a simple HTML version for PDF printing
+    // Convert markdown to HTML with better formatting
+    const convertMarkdownToHTML = (md: string) => {
+      return md.split('\n').map(line => {
+        // Headers
+        if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
+        if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
+        if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
+        
+        // Horizontal rule
+        if (line.trim() === '---') return '<hr>'
+        
+        // Lists
+        if (line.startsWith('- ')) {
+          const content = line.substring(2)
+          return `<li>${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`
+        }
+        
+        // Empty lines
+        if (line.trim() === '') return '<br>'
+        
+        // Regular paragraphs with bold text
+        let html = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        
+        return `<p>${html}</p>`
+      }).join('\n')
+    }
+    
     const html = `
 <!DOCTYPE html>
 <html>
@@ -193,26 +221,66 @@ export default function Results({ jobId }: ResultsProps) {
   <meta charset="utf-8">
   <title>Resume</title>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; }
-    h1 { font-size: 24px; margin-bottom: 10px; }
-    h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
-    h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
-    p { margin: 8px 0; }
-    ul { margin: 8px 0; padding-left: 20px; }
+    @page { margin: 0.75in; }
+    body { 
+      font-family: 'Calibri', 'Arial', sans-serif; 
+      line-height: 1.5; 
+      max-width: 8.5in; 
+      margin: 0 auto; 
+      padding: 0;
+      font-size: 11pt;
+      color: #000;
+    }
+    h1 { 
+      font-size: 18pt; 
+      margin: 0 0 8pt 0; 
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 2px solid #000;
+      padding-bottom: 4pt;
+    }
+    h2 { 
+      font-size: 14pt; 
+      margin: 16pt 0 8pt 0; 
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    h3 { 
+      font-size: 12pt; 
+      margin: 12pt 0 6pt 0; 
+      font-weight: bold;
+    }
+    p { 
+      margin: 6pt 0; 
+      text-align: justify;
+    }
+    ul { 
+      margin: 6pt 0; 
+      padding-left: 20pt; 
+      list-style-type: disc;
+    }
+    li { 
+      margin: 4pt 0;
+      text-align: justify;
+    }
     strong { font-weight: bold; }
-    @media print { body { margin: 0; padding: 20px; } }
+    em { font-style: italic; }
+    hr { 
+      border: none; 
+      border-top: 1px solid #ccc; 
+      margin: 12pt 0; 
+    }
+    br { display: block; margin: 6pt 0; content: ""; }
+    @media print { 
+      body { margin: 0; padding: 0; }
+      h1 { page-break-after: avoid; }
+      h2 { page-break-after: avoid; }
+      h3 { page-break-after: avoid; }
+    }
   </style>
 </head>
 <body>
-${tailoredResume.split('\n').map(line => {
-  if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
-  if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
-  if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
-  if (line.startsWith('- ')) return `<li>${line.substring(2)}</li>`
-  if (line.startsWith('**') && line.endsWith('**')) return `<p><strong>${line.slice(2, -2)}</strong></p>`
-  if (line.trim() === '') return '<br>'
-  return `<p>${line}</p>`
-}).join('\n')}
+${convertMarkdownToHTML(tailoredResume)}
 </body>
 </html>
     `

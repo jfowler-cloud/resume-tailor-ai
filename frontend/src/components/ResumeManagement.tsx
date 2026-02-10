@@ -124,6 +124,24 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
       const content = await response.Body?.transformToString()
       if (!content) return
 
+      const convertMarkdownToHTML = (md: string) => {
+        return md.split('\n').map(line => {
+          if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
+          if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
+          if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
+          if (line.trim() === '---') return '<hr>'
+          if (line.startsWith('- ')) {
+            const content = line.substring(2)
+            return `<li>${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`
+          }
+          if (line.trim() === '') return '<br>'
+          let html = line
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          return `<p>${html}</p>`
+        }).join('\n')
+      }
+
       const html = `
 <!DOCTYPE html>
 <html>
@@ -131,24 +149,63 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
   <meta charset="utf-8">
   <title>${item.name}</title>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; }
-    h1 { font-size: 24px; margin-bottom: 10px; }
-    h2 { font-size: 20px; margin-top: 20px; margin-bottom: 10px; }
-    h3 { font-size: 16px; margin-top: 15px; margin-bottom: 8px; }
-    p { margin: 8px 0; }
-    ul { margin: 8px 0; padding-left: 20px; }
-    @media print { body { margin: 0; padding: 20px; } }
+    @page { margin: 0.75in; }
+    body { 
+      font-family: 'Calibri', 'Arial', sans-serif; 
+      line-height: 1.5; 
+      max-width: 8.5in; 
+      margin: 0 auto; 
+      padding: 0;
+      font-size: 11pt;
+      color: #000;
+    }
+    h1 { 
+      font-size: 18pt; 
+      margin: 0 0 8pt 0; 
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 2px solid #000;
+      padding-bottom: 4pt;
+    }
+    h2 { 
+      font-size: 14pt; 
+      margin: 16pt 0 8pt 0; 
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    h3 { 
+      font-size: 12pt; 
+      margin: 12pt 0 6pt 0; 
+      font-weight: bold;
+    }
+    p { 
+      margin: 6pt 0; 
+      text-align: justify;
+    }
+    ul { 
+      margin: 6pt 0; 
+      padding-left: 20pt; 
+      list-style-type: disc;
+    }
+    li { 
+      margin: 4pt 0;
+      text-align: justify;
+    }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+    hr { 
+      border: none; 
+      border-top: 1px solid #ccc; 
+      margin: 12pt 0; 
+    }
+    @media print { 
+      body { margin: 0; padding: 0; }
+      h1, h2, h3 { page-break-after: avoid; }
+    }
   </style>
 </head>
 <body>
-${content.split('\n').map(line => {
-  if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
-  if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
-  if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
-  if (line.startsWith('- ')) return `<li>${line.substring(2)}</li>`
-  if (line.trim() === '') return '<br>'
-  return `<p>${line}</p>`
-}).join('\n')}
+${convertMarkdownToHTML(content)}
 </body>
 </html>
       `
