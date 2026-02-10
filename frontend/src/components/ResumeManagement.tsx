@@ -103,6 +103,13 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
     }
   }
 
+  const downloadAll = async () => {
+    for (const item of selectedItems) {
+      await downloadResume(item)
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+  }
+
   const deleteResume = async (item: ResumeItem) => {
     if (!confirm(`Delete ${item.name}?`)) return
 
@@ -129,6 +136,35 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
     }
   }
 
+  const deleteAll = async () => {
+    if (!confirm(`Delete ${selectedItems.length} selected resume(s)?`)) return
+
+    try {
+      const session = await fetchAuthSession()
+      const credentials = session.credentials
+      if (!credentials) return
+
+      const s3Client = new S3Client({
+        region: awsConfig.region,
+        credentials: credentials
+      })
+
+      for (const item of selectedItems) {
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: awsConfig.bucketName,
+            Key: item.key
+          })
+        )
+      }
+
+      setSelectedItems([])
+      await loadResumes()
+    } catch (err) {
+      console.error('Failed to delete resumes:', err)
+    }
+  }
+
   return (
     <Container
       header={
@@ -136,9 +172,24 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
           variant="h2"
           description="View, download, and manage your uploaded resumes"
           actions={
-            <Button onClick={loadResumes} loading={loading}>
-              Refresh
-            </Button>
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button 
+                onClick={downloadAll} 
+                disabled={selectedItems.length === 0}
+                iconName="download"
+              >
+                Download Selected
+              </Button>
+              <Button 
+                onClick={deleteAll} 
+                disabled={selectedItems.length === 0}
+              >
+                Delete Selected
+              </Button>
+              <Button onClick={loadResumes} loading={loading}>
+                Refresh
+              </Button>
+            </SpaceBetween>
           }
         >
           Resume Library
