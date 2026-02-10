@@ -9,7 +9,7 @@ import Textarea from '@cloudscape-design/components/textarea'
 import Input from '@cloudscape-design/components/input'
 import Button from '@cloudscape-design/components/button'
 import Alert from '@cloudscape-design/components/alert'
-import Multiselect from '@cloudscape-design/components/select'
+import Multiselect from '@cloudscape-design/components/multiselect'
 import { awsConfig } from '../config/amplify'
 
 interface JobAnalysisProps {
