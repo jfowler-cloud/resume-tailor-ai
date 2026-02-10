@@ -16,7 +16,7 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 | **Runtime** | Node.js | 24.x |
 | **Backend** | Python | 3.14 |
 | **Infrastructure** | AWS CDK | Latest |
-| **AI** | Claude (via Bedrock) | 4.5 suite |
+| **AI** | Claude (via Bedrock) | Sonnet 4 |
 | **Authentication** | AWS SSO | - |
 | **Authorization** | IAM Role Assumption | - |
 
@@ -71,11 +71,11 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 │  ┌──────────────┐  ┌──────────────┐                                │
 │  │   Bedrock    │  │     SES      │                                │
 │  │              │  │              │                                │
-│  │ • Claude 4.5 │  │ • Email      │                                │
+│  │ • Claude Sonnet 4 │  │ • Email      │                                │
 │  │   Sonnet     │  │   notifications                               │
-│  │ • Claude 4.5 │  │              │                                │
+│  │ • Claude Sonnet 4 │  │              │                                │
 │  │   Opus       │  │              │                                │
-│  │ • Claude 4.5 │  │              │                                │
+│  │ • Claude Sonnet 4 │  │              │                                │
 │  │   Haiku      │  │              │                                │
 │  └──────────────┘  └──────────────┘                                │
 └─────────────────────────────────────────────────────────────────────┘
@@ -89,24 +89,24 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 │  1. ParseResumes (Lambda)                                            │
 │     └─> Extract text from uploaded resumes                          │
 │                                                                      │
-│  2. AnalyzeJobRequirements (Lambda + Claude 4.5)                     │
+│  2. AnalyzeJobRequirements (Lambda + Claude Sonnet 4)                     │
 │     └─> Extract skills, experience, keywords from job description   │
 │                                                                      │
-│  3. EvaluateFit (Lambda + Claude 4.5)                                │
+│  3. EvaluateFit (Lambda + Claude Sonnet 4)                                │
 │     └─> Score each resume against job requirements                  │
 │     └─> Parallel execution for multiple resumes                     │
 │                                                                      │
 │  4. SelectBestResume (Lambda)                                        │
 │     └─> Choose resume with highest fit score                        │
 │                                                                      │
-│  5. TailorResume (Lambda + Claude 4.5)                               │
+│  5. TailorResume (Lambda + Claude Sonnet 4)                               │
 │     └─> Apply all 6 optimization approaches                         │
 │     └─> Generate ATS-optimized resume                               │
 │                                                                      │
-│  6. GenerateCoverLetter (Lambda + Claude 4.5)                        │
+│  6. GenerateCoverLetter (Lambda + Claude Sonnet 4)                        │
 │     └─> Create personalized cover letter                            │
 │                                                                      │
-│  7. QualityCheck (Lambda + Claude 4.5)                               │
+│  7. QualityCheck (Lambda + Claude Sonnet 4)                               │
 │     └─> Final validation and scoring                                │
 │                                                                      │
 │  8. StoreResults (Lambda)                                            │
@@ -187,7 +187,7 @@ User pastes job description
 ```
 Step Functions orchestrates 8 Lambda functions:
   └─> Each Lambda has ResumeTailorAppRole execution role
-  └─> Lambdas invoke Bedrock Claude 4.5 APIs
+  └─> Lambdas invoke Bedrock Claude Sonnet 4 APIs
   └─> Results stored in DynamoDB and S3
 ```
 
