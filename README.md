@@ -91,13 +91,14 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
         ↓
 ┌─────────────────────────────────────────┐
 │  Step Functions Workflow                │
-│  1. Parse Job (Claude Sonnet 4 Sonnet)      │
-│  2. Analyze Resume Fit (Claude Sonnet 4 Opus)│
+│  1. Parse Job (Claude Sonnet 4)        │
+│  2. Analyze Resume Fit (Claude Sonnet 4)│
 │  3. Generate Tailored Resume            │
+│     (Claude Sonnet 4 - Streaming)       │
 │  4. Parallel Processing:                │
-│     - ATS Optimize (Claude Sonnet 4 Haiku)   │
-│     - Cover Letter (Claude Sonnet 4 Sonnet)  │
-│     - Critical Review (Claude Sonnet 4 Opus) │
+│     - ATS Optimize (Claude Sonnet 4)    │
+│     - Cover Letter (Claude Sonnet 4)    │
+│     - Critical Review (Claude Sonnet 4) │
 │  5. Save Results (DynamoDB)             │
 │  6. Send Notification (SES)             │
 └─────────────────────────────────────────┘
