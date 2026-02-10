@@ -18,7 +18,7 @@ export default function Dashboard({ user }: DashboardProps) {
   const [currentJobId, setCurrentJobId] = useState<string | null>(null)
 
   const handleResumeUploaded = (resumeKey: string) => {
-    setUploadedResumes([...uploadedResumes, resumeKey])
+    setUploadedResumes(prev => prev.includes(resumeKey) ? prev : [...prev, resumeKey])
   }
 
   const handleJobSubmitted = (jobId: string) => {

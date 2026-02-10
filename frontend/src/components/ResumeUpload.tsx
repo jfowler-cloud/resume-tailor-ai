@@ -44,9 +44,13 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
       )
 
       if (response.Contents) {
-        response.Contents.forEach(obj => {
-          if (obj.Key) onResumeUploaded(obj.Key)
-        })
+        const seen = new Set<string>()
+        for (const obj of response.Contents) {
+          if (obj.Key && !seen.has(obj.Key)) {
+            seen.add(obj.Key)
+            onResumeUploaded(obj.Key)
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to load existing resumes:', err)
