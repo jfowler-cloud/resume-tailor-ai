@@ -295,7 +295,7 @@ export class ResumeTailorStack extends cdk.Stack {
       payload: sfn.TaskInput.fromObject({
         'jobId.$': '$.jobId',
         'userId.$': '$.userId',
-        'resumeS3Key.$': '$.resumeS3Key',
+        'resumeS3Keys.$': '$.resumeS3Keys',
         'parsedJob.$': '$.parsedJob.Payload',
         'userEmail.$': '$.userEmail',
       }),
@@ -308,7 +308,7 @@ export class ResumeTailorStack extends cdk.Stack {
       payload: sfn.TaskInput.fromObject({
         'jobId.$': '$.jobId',
         'userId.$': '$.userId',
-        'resumeS3Key.$': '$.resumeS3Key',
+        'resumeS3Keys.$': '$.resumeS3Keys',
         'parsedJob.$': '$.parsedJob.Payload',
         'analysis.$': '$.analysis.Payload',
       }),
