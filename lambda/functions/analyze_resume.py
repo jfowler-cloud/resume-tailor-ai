@@ -30,12 +30,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     try:
         bucket_name = os.environ['BUCKET_NAME']
-        resume_key = event.get('resumeS3Key', '')
+        resume_keys = event.get('resumeS3Keys', [event.get('resumeS3Key', '')])
+        if isinstance(resume_keys, str):
+            resume_keys = [resume_keys]
+        
         parsed_job = event.get('parsedJob', {})
         
-        # Download resume from S3
-        response = s3.get_object(Bucket=bucket_name, Key=resume_key)
-        resume_content = response['Body'].read().decode('utf-8')
+        # Download all resumes from S3
+        resumes = []
+        for key in resume_keys:
+            if key:
+                response = s3.get_object(Bucket=bucket_name, Key=key)
+                content = response['Body'].read().decode('utf-8')
+                resumes.append(content)
+        
+        resume_content = '\n\n---RESUME VERSION---\n\n'.join(resumes)
         
         # Prepare analysis prompt
         prompt = f"""You are an expert resume analyst. Analyze this resume against the job requirements.
