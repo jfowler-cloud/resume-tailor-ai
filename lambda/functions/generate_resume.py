@@ -5,11 +5,16 @@ Creates customized resume optimized for specific job posting
 import json
 import os
 import boto3
+from botocore.config import Config
 from extract_json import extract_json_from_text
 from typing import Dict, Any
 
 s3 = boto3.client('s3')
-bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+bedrock = boto3.client(
+    'bedrock-runtime',
+    region_name='us-east-1',
+    config=Config(read_timeout=600, connect_timeout=60)
+)
 
 # Load resume optimization prompts
 PROFESSIONAL_REWRITE_PROMPT = """You're a top recruiter. Rewrite this resume for the specific job role, using strong, measurable language that grabs attention. Focus on achievements with quantifiable results."""
@@ -94,8 +99,10 @@ Return a JSON object with:
 
 Return ONLY valid JSON."""
 
-        # Call Claude 4.5 Sonnet for resume generation
-        response = bedrock.invoke_model(
+        print(f"Starting resume generation with {len(resumes)} resume(s)...")
+        
+        # Call Claude 4.5 Sonnet with streaming for resume generation
+        response = bedrock.invoke_model_with_response_stream(
             modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
@@ -110,8 +117,21 @@ Return ONLY valid JSON."""
             })
         )
         
-        response_body = json.loads(response['body'].read())
-        result_content = response_body['content'][0]['text']
+        # Collect streamed response
+        result_content = ""
+        stream = response.get('body')
+        if stream:
+            for event in stream:
+                chunk = event.get('chunk')
+                if chunk:
+                    chunk_obj = json.loads(chunk.get('bytes').decode())
+                    if chunk_obj['type'] == 'content_block_delta':
+                        delta = chunk_obj['delta'].get('text', '')
+                        result_content += delta
+                        if len(result_content) % 1000 < 100:  # Log progress every ~1000 chars
+                            print(f"Generated {len(result_content)} characters...")
+        
+        print(f"Resume generation complete. Total length: {len(result_content)} characters")
         
         # Parse result
         result = extract_json_from_text(result_content)
