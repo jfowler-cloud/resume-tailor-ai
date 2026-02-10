@@ -151,7 +151,7 @@ Return ONLY valid JSON."""
         return {
             'statusCode': 200,
             'jobId': job_id,
-            'originalResumeS3Key': resume_key,
+            'originalResumeS3Keys': resume_keys,
             'tailoredResumeS3Key': tailored_key,
             'tailoredResumeMarkdown': tailored_resume,
             'changesApplied': result.get('changesApplied', []),
