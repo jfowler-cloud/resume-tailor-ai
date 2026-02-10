@@ -30,7 +30,7 @@ export const amplifyConfig = {
 // AWS SDK configuration
 export const awsConfig = {
   region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
-  bucketName: import.meta.env.VITE_BUCKET_NAME || 'resume-tailor-831729228662',
-  stateMachineArn: import.meta.env.VITE_STATE_MACHINE_ARN || 'arn:aws:states:us-east-1:831729228662:stateMachine:ResumeTailorWorkflow',
+  bucketName: import.meta.env.VITE_BUCKET_NAME || 'resume-tailor-<YOUR-ACCOUNT-ID>',
+  stateMachineArn: import.meta.env.VITE_STATE_MACHINE_ARN || 'arn:aws:states:us-east-1:<YOUR-ACCOUNT-ID>:stateMachine:ResumeTailorWorkflow',
   tableName: import.meta.env.VITE_TABLE_NAME || 'ResumeTailorResults'
 }
