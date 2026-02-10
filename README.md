@@ -84,7 +84,7 @@ npm run dev
 
 **Important:** Request access to Claude Sonnet 4 in [Bedrock Console](https://console.aws.amazon.com/bedrock/) → Model access before first use.
 
-Open http://localhost:5173 in your browser and create an account!
+Open http://localhost:3000 in your browser and create an account!
 
 **Detailed guides:** [QUICKSTART.md](QUICKSTART.md) | [DEPLOYMENT.md](DEPLOYMENT.md)
 

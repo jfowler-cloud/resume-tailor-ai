@@ -90,7 +90,7 @@ npm run dev
 
 ## Step 6: Create Account & Test
 
-1. Open http://localhost:5173 in your browser
+1. Open http://localhost:3000 in your browser
 2. Click **Create account**
 3. Verify email (check spam folder)
 4. Upload a resume
