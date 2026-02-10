@@ -1,10 +1,10 @@
 # 🎯 AI-Powered Resume Tailor Platform
 
-> Leverage Claude Sonnet 4 to automatically tailor your resume for any job posting
+> Leverage Claude Sonnet 4.5 to automatically tailor your resume for any job posting
 
 [![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
 [![CDK](https://img.shields.io/badge/CDK-TypeScript-blue)](https://aws.amazon.com/cdk/)
-[![Claude](https://img.shields.io/badge/Claude-Sonnet-4-purple)](https://www.anthropic.com/claude)
+[![Claude](https://img.shields.io/badge/Claude-Sonnet%204.5-purple)](https://www.anthropic.com/claude)
 [![React](https://img.shields.io/badge/React-18-blue)](https://react.dev/)
 [![Tests](https://img.shields.io/badge/Tests-23%20passing-brightgreen)](https://github.com)
 [![Built](https://img.shields.io/badge/Built-In%201%20Day-success)](https://github.com)
@@ -13,16 +13,16 @@
 
 ## 📋 Overview
 
-An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Sonnet 4. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
+An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Sonnet 4.5.5. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
 
-**Built in a single day** leveraging modern AI-assisted development with AWS Kiro CLI and Claude Sonnet 4, demonstrating rapid full-stack development capabilities with production-ready infrastructure, comprehensive testing, and enterprise-grade features.
+**Built in a single day** leveraging modern AI-assisted development with AWS Kiro CLI and Claude Sonnet 4.5.5, demonstrating rapid full-stack development capabilities with production-ready infrastructure, comprehensive testing, and enterprise-grade features.
 
 ### ✨ Key Features
 
 - 🔐 **User Authentication** - Cognito with email/password
 - 📤 **Multiple Resume Upload** - Upload and manage multiple resume versions (.md, .txt)
 - 📚 **Resume Library** - View, download, and manage all your resumes in one place
-- 🤖 **AI Analysis** - Claude Sonnet 4 evaluates fit and identifies gaps
+- 🤖 **AI Analysis** - Claude Sonnet 4.5 evaluates fit and identifies gaps
 - 📊 **Detailed Critique** - Fit scores, matched/missing skills, strengths, weaknesses
 - ✍️ **Automated Tailoring** - AI rewrites resume to emphasize relevant experience
 - 🔄 **Reusable Tailored Resumes** - Automatically saved for future applications
@@ -94,14 +94,14 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
         ↓
 ┌─────────────────────────────────────────┐
 │  Step Functions Workflow                │
-│  1. Parse Job (Claude Sonnet 4)        │
-│  2. Analyze Resume Fit (Claude Sonnet 4)│
+│  1. Parse Job (Claude Sonnet 4.5)        │
+│  2. Analyze Resume Fit (Claude Sonnet 4.5)│
 │  3. Generate Tailored Resume            │
-│     (Claude Sonnet 4 - Streaming)       │
+│     (Claude Sonnet 4.5 - Streaming)       │
 │  4. Parallel Processing:                │
-│     - ATS Optimize (Claude Sonnet 4)    │
-│     - Cover Letter (Claude Sonnet 4)    │
-│     - Critical Review (Claude Sonnet 4) │
+│     - ATS Optimize (Claude Sonnet 4.5)    │
+│     - Cover Letter (Claude Sonnet 4.5)    │
+│     - Critical Review (Claude Sonnet 4.5) │
 │  5. Save Results (DynamoDB)             │
 │  6. Send Notification (SES)             │
 └─────────────────────────────────────────┘
@@ -113,7 +113,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 
 1. **Upload Resumes** - Upload one or more resumes in Markdown or text format
 2. **Paste Job Description** - Copy the entire job posting
-3. **AI Analysis** - Claude Sonnet 4 extracts requirements and evaluates fit
+3. **AI Analysis** - Claude Sonnet 4.5 extracts requirements and evaluates fit
 4. **Get Results** - Receive tailored resume, cover letter, and detailed feedback in 30-60 seconds
 5. **Manage Library** - View, download, and reuse all your resumes from the Resume Library
 
@@ -162,7 +162,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | **Authentication** | AWS Cognito | User management |
 | **API** | Lambda (Python 3.14) | Serverless backend |
 | **Orchestration** | Step Functions | Workflow management |
-| **AI** | Amazon Bedrock (Claude Sonnet 4) | Resume analysis & generation |
+| **AI** | Amazon Bedrock (Claude Sonnet 4.5) | Resume analysis & generation |
 | **Storage** | S3 + DynamoDB | Data persistence |
 | **IaC** | AWS CDK (TypeScript) | Infrastructure as code |
 | **Testing** | Vitest + pytest | Unit tests |
@@ -176,7 +176,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | **Cognito** | 1 user | **$0** (free tier) |
 | Lambda | ~100 invocations | Free tier |
 | Step Functions | ~20 executions | $0.05 |
-| Bedrock Claude Sonnet 4 | ~50K tokens | $0.75 |
+| Bedrock Claude Sonnet 4.5 | ~50K tokens | $0.75 |
 | DynamoDB | On-demand | $0.25 |
 | S3 | ~1GB storage | $0.02 |
 | SES | ~20 emails | $0.002 |
@@ -229,7 +229,7 @@ See [TESTING.md](TESTING.md) for detailed testing guide.
 ## 🎯 Current Status
 
 ### ✅ Production Ready (v2.0.0)
-Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4 for AI-assisted development:
+Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted development:
 
 **Core Features:**
 - ✅ Backend infrastructure deployed (S3, Lambda, Step Functions, DynamoDB)
@@ -238,7 +238,7 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4 for AI-assisted developm
 - ✅ Dark mode toggle
 - ✅ Multiple resume upload functionality
 - ✅ Resume Library with bulk operations (upload/download/delete)
-- ✅ Job analysis workflow with Claude Sonnet 4
+- ✅ Job analysis workflow with Claude Sonnet 4.5
 - ✅ Enhanced results display with critique data
 - ✅ PDF print functionality with markdown rendering
 - ✅ Reusable tailored resumes
@@ -277,10 +277,10 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4 for AI-assisted developm
 ### v1.0.0 - Initial Release (Feb 2026)
 - 🎉 Core resume tailoring functionality
 - 🎉 AWS serverless architecture
-- 🎉 Claude Sonnet 4 integration
+- 🎉 Claude Sonnet 4.5 integration
 - 🎉 User authentication
 
-**Development Timeline:** Both versions built in a single day using AWS Kiro CLI and Claude Sonnet 4 for AI-assisted development, showcasing modern rapid development capabilities.
+**Development Timeline:** Both versions built in a single day using AWS Kiro CLI and Claude Sonnet 4.5 for AI-assisted development, showcasing modern rapid development capabilities.
 
 ---
 
@@ -299,7 +299,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🙏 Acknowledgments
 
 - AWS for serverless infrastructure
-- Anthropic for Claude Sonnet 4 AI models
+- Anthropic for Claude Sonnet 4.5 AI models
 - Cloudscape Design System for UI components
 - React and Vite communities
 
@@ -314,4 +314,4 @@ For issues, questions, or suggestions:
 
 ---
 
-**Built with ❤️ using AWS, React, and Claude Sonnet 4**
+**Built with ❤️ using AWS, React, and Claude Sonnet 4.5**
