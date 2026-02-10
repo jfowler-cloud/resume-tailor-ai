@@ -132,10 +132,21 @@ export class ResumeTailorStack extends cdk.Stack {
           'bedrock:InvokeModelWithResponseStream',
         ],
         resources: [
-          `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-4-5-sonnet-*`,
-          `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-4-5-opus-*`,
-          `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-4-5-haiku-*`,
+          `arn:aws:bedrock:*::foundation-model/anthropic.claude-*`,
+          `arn:aws:bedrock:*:${this.account}:inference-profile/*`,
         ],
+      })
+    );
+
+    // Grant AWS Marketplace permissions for Bedrock models
+    lambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'aws-marketplace:ViewSubscriptions',
+          'aws-marketplace:Subscribe',
+        ],
+        resources: ['*'],
       })
     );
 
@@ -167,7 +178,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 512,
       layers: [sharedLayer],
     });
@@ -193,7 +204,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(3),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 2048,
       layers: [sharedLayer],
     });
@@ -245,7 +256,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 512,
       layers: [sharedLayer],
     });
@@ -258,7 +269,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 256,
       layers: [sharedLayer],
     });
@@ -275,32 +286,52 @@ export class ResumeTailorStack extends cdk.Stack {
     // Step Functions State Machine
     const parseJobTask = new tasks.LambdaInvoke(this, 'ParseJobDescription', {
       lambdaFunction: parseJobFn,
-      outputPath: '$.Payload',
+      resultPath: '$.parsedJob',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const analyzeResumeTask = new tasks.LambdaInvoke(this, 'AnalyzeResumeFit', {
       lambdaFunction: analyzeResumeFn,
-      outputPath: '$.Payload',
+      payload: sfn.TaskInput.fromObject({
+        'jobId.$': '$.jobId',
+        'userId.$': '$.userId',
+        'resumeS3Key.$': '$.resumeS3Key',
+        'parsedJob.$': '$.parsedJob.Payload',
+        'userEmail.$': '$.userEmail',
+      }),
+      resultPath: '$.analysis',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const generateResumeTask = new tasks.LambdaInvoke(this, 'GenerateTailoredResume', {
       lambdaFunction: generateResumeFn,
-      outputPath: '$.Payload',
+      payload: sfn.TaskInput.fromObject({
+        'jobId.$': '$.jobId',
+        'userId.$': '$.userId',
+        'resumeS3Key.$': '$.resumeS3Key',
+        'parsedJob.$': '$.parsedJob.Payload',
+        'analysis.$': '$.analysis.Payload',
+      }),
+      resultPath: '$.tailoredResume',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const atsOptimizeTask = new tasks.LambdaInvoke(this, 'ATSOptimization', {
       lambdaFunction: atsOptimizeFn,
       outputPath: '$.Payload',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const coverLetterTask = new tasks.LambdaInvoke(this, 'GenerateCoverLetter', {
       lambdaFunction: coverLetterFn,
       outputPath: '$.Payload',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const criticalReviewTask = new tasks.LambdaInvoke(this, 'CriticalReview', {
       lambdaFunction: criticalReviewFn,
       outputPath: '$.Payload',
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const saveResultsTask = new tasks.LambdaInvoke(this, 'SaveResults', {

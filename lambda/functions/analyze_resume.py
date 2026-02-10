@@ -5,10 +5,11 @@ Compares resume against job requirements and provides fit analysis
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
 s3 = boto3.client('s3')
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -60,7 +61,7 @@ Be honest and thorough. Return ONLY valid JSON."""
 
         # Call Claude 4.5 Opus for detailed analysis
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-opus-4-5-20251101-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 8192,
@@ -78,7 +79,7 @@ Be honest and thorough. Return ONLY valid JSON."""
         analysis_content = response_body['content'][0]['text']
         
         # Parse analysis
-        analysis = json.loads(analysis_content)
+        analysis = extract_json_from_text(analysis_content)
         
         return {
             'statusCode': 200,

@@ -5,10 +5,11 @@ Creates personalized cover letter that tells candidate's story
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
 s3 = boto3.client('s3')
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 COVER_LETTER_PROMPT = """Create a personalized cover letter that tells the candidate's story, shows passion, and makes them stand out. The letter should:
 1. Open with a compelling hook
@@ -71,7 +72,7 @@ Return ONLY valid JSON."""
 
         # Call Claude 4.5 Sonnet for creative writing
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-sonnet-4-5-20250929-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 4096,
@@ -88,7 +89,7 @@ Return ONLY valid JSON."""
         response_body = json.loads(response['body'].read())
         result_content = response_body['content'][0]['text']
         
-        result = json.loads(result_content)
+        result = extract_json_from_text(result_content)
         cover_letter = result.get('coverLetter', '')
         
         # Save cover letter to S3

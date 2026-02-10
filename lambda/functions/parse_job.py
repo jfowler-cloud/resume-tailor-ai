@@ -5,9 +5,10 @@ Extracts key requirements, skills, and qualifications from job posting
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -49,7 +50,7 @@ Return ONLY valid JSON, no other text."""
 
         # Call Claude 4.5 Sonnet via Bedrock
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-sonnet-4-5-20250929-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 4096,
@@ -68,7 +69,7 @@ Return ONLY valid JSON, no other text."""
         parsed_content = response_body['content'][0]['text']
         
         # Extract JSON from response
-        parsed_job = json.loads(parsed_content)
+        parsed_job = extract_json_from_text(parsed_content)
         
         return {
             'statusCode': 200,

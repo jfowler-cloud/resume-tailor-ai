@@ -5,9 +5,10 @@ Ensures resume is 100% compatible with Applicant Tracking Systems
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 ATS_OPTIMIZATION_PROMPT = """Optimize this resume so it's 100% compatible with Applicant Tracking Systems. Add keywords matching the job title and requirements for 2025. Focus on:
 1. Keyword density and placement
@@ -60,7 +61,7 @@ Return ONLY valid JSON."""
 
         # Call Claude 4.5 Haiku for fast ATS optimization
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-haiku-4-5-20251001-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 8192,
@@ -77,7 +78,7 @@ Return ONLY valid JSON."""
         response_body = json.loads(response['body'].read())
         result_content = response_body['content'][0]['text']
         
-        result = json.loads(result_content)
+        result = extract_json_from_text(result_content)
         
         return {
             'statusCode': 200,

@@ -5,9 +5,10 @@ Provides brutally honest feedback on resume quality
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 CRITICAL_REVIEW_PROMPT = """Give unfiltered feedback on this resume. Tell me what's weak, what's okay, and how to make it impossible to ignore. Be brutally honest but constructive. Focus on:
 1. Content quality and impact
@@ -59,7 +60,7 @@ Be direct and honest. Return ONLY valid JSON."""
 
         # Call Claude 4.5 Opus for thorough critical analysis
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-opus-4-5-20251101-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 8192,
@@ -76,7 +77,7 @@ Be direct and honest. Return ONLY valid JSON."""
         response_body = json.loads(response['body'].read())
         result_content = response_body['content'][0]['text']
         
-        result = json.loads(result_content)
+        result = extract_json_from_text(result_content)
         
         return {
             'statusCode': 200,

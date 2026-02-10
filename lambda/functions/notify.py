@@ -7,7 +7,7 @@ import os
 import boto3
 from typing import Dict, Any
 
-ses = boto3.client('ses', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+ses = boto3.client('ses', region_name='us-east-1')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """

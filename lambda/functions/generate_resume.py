@@ -5,10 +5,11 @@ Creates customized resume optimized for specific job posting
 import json
 import os
 import boto3
+from extract_json import extract_json_from_text
 from typing import Dict, Any
 
 s3 = boto3.client('s3')
-bedrock = boto3.client('bedrock-runtime', region_name=os.environ.get('BEDROCK_REGION', 'us-east-1'))
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 # Load resume optimization prompts
 PROFESSIONAL_REWRITE_PROMPT = """You're a top recruiter. Rewrite this resume for the specific job role, using strong, measurable language that grabs attention. Focus on achievements with quantifiable results."""
@@ -80,7 +81,7 @@ Return ONLY valid JSON."""
 
         # Call Claude 4.5 Sonnet for resume generation
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-sonnet-4-5-20250929-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 16384,
@@ -98,7 +99,7 @@ Return ONLY valid JSON."""
         result_content = response_body['content'][0]['text']
         
         # Parse result
-        result = json.loads(result_content)
+        result = extract_json_from_text(result_content)
         tailored_resume = result.get('tailoredResume', '')
         
         # Save tailored resume to S3
@@ -129,3 +130,4 @@ Return ONLY valid JSON."""
             'error': str(e),
             'message': 'Failed to generate tailored resume'
         }
+# Updated Tue Feb 10 10:23:24 EST 2026
