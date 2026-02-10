@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchAuthSession } from 'aws-amplify/auth'
-import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
 import SpaceBetween from '@cloudscape-design/components/space-between'
@@ -13,6 +13,14 @@ import { awsConfig } from '../config/amplify'
 interface ResumeUploadProps {
   userId: string
   onResumeUploaded: (resumeKey: string) => void
+}
+
+async function hashContent(content: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(content)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadProps) {
@@ -44,11 +52,29 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
       )
 
       if (response.Contents) {
-        const seen = new Set<string>()
+        const contentHashes = new Map<string, string>()
+        
         for (const obj of response.Contents) {
-          if (obj.Key && !seen.has(obj.Key)) {
-            seen.add(obj.Key)
-            onResumeUploaded(obj.Key)
+          if (!obj.Key) continue
+          
+          try {
+            const getResponse = await s3Client.send(
+              new GetObjectCommand({
+                Bucket: awsConfig.bucketName,
+                Key: obj.Key
+              })
+            )
+            const content = await getResponse.Body?.transformToString()
+            if (!content) continue
+            
+            const hash = await hashContent(content)
+            
+            if (!contentHashes.has(hash)) {
+              contentHashes.set(hash, obj.Key)
+              onResumeUploaded(obj.Key)
+            }
+          } catch (err) {
+            console.error(`Failed to load ${obj.Key}:`, err)
           }
         }
       }
