@@ -354,7 +354,9 @@ export class ResumeTailorStack extends cdk.Stack {
     });
 
     // Parallel processing for optimization tasks
-    const parallelOptimization = new sfn.Parallel(this, 'ParallelOptimization')
+    const parallelOptimization = new sfn.Parallel(this, 'ParallelOptimization', {
+      resultPath: '$.parallelResults',
+    })
       .branch(atsOptimizeTask)
       .branch(coverLetterTask)
       .branch(criticalReviewTask);
