@@ -40,8 +40,8 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 ### Prerequisites
 
 - AWS Account with credentials configured (`aws configure`)
-- Node.js 18+ and npm
-- Python 3.12+
+- Node.js 24+ and npm
+- Python 3.14+
 
 ### Deploy Backend (5 minutes)
 
@@ -82,9 +82,9 @@ EOF
 npm run dev
 ```
 
-**Important:** Enable Claude Sonnet 4 in [Bedrock Console](https://console.aws.amazon.com/bedrock/) → Model access before first use.
+**Important:** Request access to Claude Sonnet 4 in [Bedrock Console](https://console.aws.amazon.com/bedrock/) → Model access before first use.
 
-Open http://localhost:5173 and create an account!
+Open http://localhost:5173 in your browser and create an account!
 
 **Detailed guides:** [QUICKSTART.md](QUICKSTART.md) | [DEPLOYMENT.md](DEPLOYMENT.md)
 

@@ -9,8 +9,8 @@ Get your Resume Tailor platform running on AWS.
 ## Prerequisites
 
 - AWS Account with credentials configured (`aws configure`)
-- Node.js 18+ and npm
-- Python 3.12+
+- Node.js 24+ and npm
+- Python 3.14+
 
 ---
 
@@ -54,15 +54,15 @@ This creates:
 
 ---
 
-## Step 4: Enable Bedrock Models (2 minutes)
+## Step 4: Request Bedrock Model Access (2 minutes)
 
 **In AWS Console:**
 
 1. Go to: https://console.aws.amazon.com/bedrock/
 2. Click **Model access** → **Manage model access**
-3. Enable: **Claude Sonnet 4**
-4. Click **Save changes**
-5. Wait for **Access granted** (~1 minute)
+3. Select: **Claude Sonnet 4**
+4. Click **Request model access**
+5. Wait for approval (usually instant, may take up to 24 hours)
 
 ---
 
@@ -90,7 +90,7 @@ npm run dev
 
 ## Step 6: Create Account & Test
 
-1. Open http://localhost:5173
+1. Open http://localhost:5173 in your browser
 2. Click **Create account**
 3. Verify email (check spam folder)
 4. Upload a resume
@@ -121,7 +121,8 @@ npx cdk bootstrap --force
 ```
 
 ### Bedrock Access Denied
-- Ensure Claude Sonnet 4 is enabled in Bedrock console
+- Request access to Claude Sonnet 4 in Bedrock console
+- Wait for approval (usually instant, may take up to 24 hours)
 - Check IAM role has `bedrock:InvokeModel` permission
 
 ### Frontend Can't Connect
