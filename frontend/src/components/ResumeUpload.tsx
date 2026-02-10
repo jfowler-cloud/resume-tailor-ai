@@ -113,7 +113,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
           variant="h2"
           description="Upload one or more resumes in Markdown or text format"
         >
-          Upload Resume
+          Upload Resume(s)
         </Header>
       }
     >
