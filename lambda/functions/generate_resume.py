@@ -163,8 +163,11 @@ Return ONLY valid JSON."""
         
         # Also save to uploads folder for reuse
         user_id = event.get('userId', 'unknown')
+        print(f"DEBUG: userId from event: {user_id}")
+        print(f"DEBUG: Full event keys: {list(event.keys())}")
+        
         timestamp = int(datetime.now().timestamp() * 1000)
-        reusable_key = f"uploads/{user_id}/{timestamp}-tailored-{job_id[:8]}.md"
+        reusable_key = f"uploads/{user_id}/{timestamp}-tailored-{job_id[:13]}.md"
         
         s3.put_object(
             Bucket=bucket_name,

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { fetchAuthSession } from 'aws-amplify/auth'
-import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
 import SpaceBetween from '@cloudscape-design/components/space-between'
 import Table from '@cloudscape-design/components/table'
 import Button from '@cloudscape-design/components/button'
 import Box from '@cloudscape-design/components/box'
+import FileUpload from '@cloudscape-design/components/file-upload'
 import { awsConfig } from '../config/amplify'
 
 interface ResumeItem {
@@ -24,6 +25,8 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
   const [resumes, setResumes] = useState<ResumeItem[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedItems, setSelectedItems] = useState<ResumeItem[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
 
   useEffect(() => {
     loadResumes()
@@ -284,14 +287,88 @@ ${convertMarkdownToHTML(content)}
     }
   }
 
+
+  const uploadResumes = async () => {
+    if (!selectedFiles || selectedFiles.length === 0) return
+
+    setUploading(true)
+    try {
+      const session = await fetchAuthSession()
+      const credentials = session.credentials
+      if (!credentials) return
+
+      const s3Client = new S3Client({
+        region: awsConfig.region,
+        credentials: credentials
+      })
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        const timestamp = Date.now()
+        const key = `uploads/${userId}/${timestamp}-${file.name}`
+
+        const content = await file.text()
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: awsConfig.bucketName,
+            Key: key,
+            Body: content,
+            ContentType: 'text/markdown'
+          })
+        )
+      }
+
+      setSelectedFiles(null)
+      await loadResumes()
+    } catch (err) {
+      console.error('Failed to upload resumes:', err)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
-    <Container
-      header={
-        <Header
-          variant="h2"
-          description="View, download, and manage your uploaded resumes"
-          actions={
-            <SpaceBetween direction="horizontal" size="xs">
+    <SpaceBetween size="l">
+      <Container
+        header={
+          <Header variant="h3" description="Upload additional resumes to your library">
+            Upload Resumes
+          </Header>
+        }
+      >
+        <SpaceBetween size="m">
+          <FileUpload
+            onChange={({ detail }) => setSelectedFiles(detail.value as any)}
+            value={selectedFiles ? Array.from(selectedFiles) : []}
+            i18nStrings={{
+              uploadButtonText: e => e ? "Choose files" : "Choose file",
+              dropzoneText: e => e ? "Drop files to upload" : "Drop file to upload",
+              removeFileAriaLabel: e => `Remove file ${e + 1}`,
+              limitShowFewer: "Show fewer files",
+              limitShowMore: "Show more files",
+              errorIconAriaLabel: "Error"
+            }}
+            multiple
+            accept=".md,.txt"
+          />
+          <Button 
+            onClick={uploadResumes} 
+            disabled={!selectedFiles || selectedFiles.length === 0}
+            loading={uploading}
+            variant="primary"
+          >
+            Upload to Library
+          </Button>
+        </SpaceBetween>
+      </Container>
+
+      <Container
+        header={
+          <Header
+            variant="h2"
+            description="View, download, and manage your uploaded resumes"
+            actions={
+              <SpaceBetween direction="horizontal" size="xs">
               <Button 
                 onClick={downloadAll} 
                 disabled={selectedItems.length === 0}
@@ -362,5 +439,6 @@ ${convertMarkdownToHTML(content)}
         }
       />
     </Container>
+    </SpaceBetween>
   )
 }
