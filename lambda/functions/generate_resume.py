@@ -35,10 +35,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         - changesApplied: List of modifications made
     """
     try:
+        print(f"Received event keys: {list(event.keys())}")
+        
         bucket_name = os.environ['BUCKET_NAME']
+        job_id = event.get('jobId', 'unknown')
         resume_keys = event.get('resumeS3Keys', [event.get('resumeS3Key', '')])
         if isinstance(resume_keys, str):
             resume_keys = [resume_keys]
+        
+        print(f"Processing job: {job_id} with {len(resume_keys)} resume(s)")
         
         parsed_job = event.get('parsedJob', {})
         analysis = event.get('analysis', {})
@@ -144,7 +149,6 @@ Return ONLY valid JSON."""
             print(f"First 500 chars of response: {result_content[:500]}")
         
         # Save tailored resume to S3
-        job_id = event.get('jobId', 'unknown')
         tailored_key = f"tailored/{job_id}/resume.md"
         
         s3.put_object(
