@@ -60,9 +60,7 @@ FIT ANALYSIS:
 - Strengths: {', '.join(analysis.get('strengths', []))}
 - Gaps: {', '.join(analysis.get('gaps', []))}
 
-{f'CUSTOM INSTRUCTIONS FROM USER:
-{custom_instructions}
-' if custom_instructions else ''}
+{'CUSTOM INSTRUCTIONS FROM USER:\n' + custom_instructions + '\n' if custom_instructions else ''}
 
 INSTRUCTIONS:
 {PROFESSIONAL_REWRITE_PROMPT}
