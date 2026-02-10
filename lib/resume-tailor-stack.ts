@@ -336,6 +336,15 @@ export class ResumeTailorStack extends cdk.Stack {
 
     const saveResultsTask = new tasks.LambdaInvoke(this, 'SaveResults', {
       lambdaFunction: saveResultsFn,
+      payload: sfn.TaskInput.fromObject({
+        'jobId.$': '$.jobId',
+        'userId.$': '$.userId',
+        'jobDescription.$': '$.jobDescription',
+        'parsedJob.$': '$.parsedJob.Payload',
+        'analysis.$': '$.analysis.Payload',
+        'tailoredResume.$': '$.tailoredResume.Payload',
+        'parallelResults.$': '$.parallelResults',
+      }),
       outputPath: '$.Payload',
     });
 
