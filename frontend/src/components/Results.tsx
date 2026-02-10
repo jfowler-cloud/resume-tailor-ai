@@ -103,11 +103,15 @@ export default function Results({ jobId }: ResultsProps) {
         credentials: credentials
       })
 
+      // Extract timestamp from jobId (format: job-1770761916695)
+      const timestamp = jobId!.split('-')[1]
+
       const response = await dynamoClient.send(
         new GetItemCommand({
           TableName: 'ResumeTailorResults',
           Key: {
-            jobId: { S: jobId! }
+            jobId: { S: jobId! },
+            timestamp: { N: timestamp }
           }
         })
       )
