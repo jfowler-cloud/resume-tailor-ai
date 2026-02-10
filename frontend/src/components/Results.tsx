@@ -187,31 +187,58 @@ export default function Results({ jobId }: ResultsProps) {
     
     // Convert markdown to HTML with better formatting
     const convertMarkdownToHTML = (md: string) => {
-      return md.split('\n').map(line => {
-        // Headers
-        if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
-        if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
-        if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
+      const lines = md.split('\n')
+      let html = ''
+      let inTable = false
+      let tableRows: string[] = []
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
         
-        // Horizontal rule
-        if (line.trim() === '---') return '<hr>'
-        
-        // Lists
-        if (line.startsWith('- ')) {
-          const content = line.substring(2)
-          return `<li>${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`
+        // Detect table
+        if (line.includes('|') && line.trim().startsWith('|')) {
+          if (!inTable) {
+            inTable = true
+            tableRows = []
+          }
+          // Skip separator line
+          if (line.match(/^\|[\s\-:]+\|/)) continue
+          tableRows.push(line)
+          continue
+        } else if (inTable) {
+          // End of table
+          html += '<table><tbody>'
+          tableRows.forEach((row, idx) => {
+            const cells = row.split('|').filter(c => c.trim()).map(c => c.trim())
+            const tag = idx === 0 ? 'th' : 'td'
+            html += '<tr>' + cells.map(c => `<${tag}>${c.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</${tag}>`).join('') + '</tr>'
+          })
+          html += '</tbody></table>'
+          inTable = false
+          tableRows = []
         }
         
-        // Empty lines
-        if (line.trim() === '') return '<br>'
-        
-        // Regular paragraphs with bold text
-        let html = line
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        
-        return `<p>${html}</p>`
-      }).join('\n')
+        // Headers
+        if (line.startsWith('# ')) {
+          html += `<h1>${line.substring(2)}</h1>`
+        } else if (line.startsWith('## ')) {
+          html += `<h2>${line.substring(3)}</h2>`
+        } else if (line.startsWith('### ')) {
+          html += `<h3>${line.substring(4)}</h3>`
+        } else if (line.trim() === '---') {
+          html += '<hr>'
+        } else if (line.startsWith('- ')) {
+          const content = line.substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          html += `<li>${content}</li>`
+        } else if (line.trim() === '') {
+          html += '<div class="spacer"></div>'
+        } else if (!inTable) {
+          const content = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
+          html += `<p>${content}</p>`
+        }
+      }
+      
+      return html
     }
     
     const html = `
@@ -224,7 +251,7 @@ export default function Results({ jobId }: ResultsProps) {
     @page { margin: 0.75in; }
     body { 
       font-family: 'Calibri', 'Arial', sans-serif; 
-      line-height: 1.5; 
+      line-height: 1.4; 
       max-width: 8.5in; 
       margin: 0 auto; 
       padding: 0;
@@ -241,41 +268,54 @@ export default function Results({ jobId }: ResultsProps) {
     }
     h2 { 
       font-size: 14pt; 
-      margin: 16pt 0 8pt 0; 
+      margin: 14pt 0 8pt 0; 
       font-weight: bold;
       text-transform: uppercase;
     }
     h3 { 
       font-size: 12pt; 
-      margin: 12pt 0 6pt 0; 
+      margin: 10pt 0 6pt 0; 
       font-weight: bold;
     }
     p { 
-      margin: 6pt 0; 
+      margin: 4pt 0; 
       text-align: justify;
     }
     ul { 
-      margin: 6pt 0; 
+      margin: 4pt 0; 
       padding-left: 20pt; 
       list-style-type: disc;
     }
     li { 
-      margin: 4pt 0;
+      margin: 3pt 0;
       text-align: justify;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6pt;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+      font-weight: bold;
     }
     strong { font-weight: bold; }
     em { font-style: italic; }
     hr { 
       border: none; 
       border-top: 1px solid #ccc; 
-      margin: 12pt 0; 
+      margin: 10pt 0; 
     }
-    br { display: block; margin: 6pt 0; content: ""; }
+    .spacer { height: 8pt; }
     @media print { 
       body { margin: 0; padding: 0; }
-      h1 { page-break-after: avoid; }
-      h2 { page-break-after: avoid; }
-      h3 { page-break-after: avoid; }
+      h1, h2, h3 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
     }
   </style>
 </head>
