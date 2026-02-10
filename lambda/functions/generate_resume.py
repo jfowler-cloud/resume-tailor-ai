@@ -137,6 +137,12 @@ Return ONLY valid JSON."""
         result = extract_json_from_text(result_content)
         tailored_resume = result.get('tailoredResume', '')
         
+        print(f"Extracted tailored resume length: {len(tailored_resume)} characters")
+        
+        if not tailored_resume:
+            print("WARNING: No tailored resume content extracted from response")
+            print(f"First 500 chars of response: {result_content[:500]}")
+        
         # Save tailored resume to S3
         job_id = event.get('jobId', 'unknown')
         tailored_key = f"tailored/{job_id}/resume.md"
@@ -147,6 +153,8 @@ Return ONLY valid JSON."""
             Body=tailored_resume.encode('utf-8'),
             ContentType='text/markdown'
         )
+        
+        print(f"Saved tailored resume to S3: {tailored_key}")
         
         return {
             'statusCode': 200,
