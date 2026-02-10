@@ -38,7 +38,7 @@ interface AnalysisData {
   actionableSteps?: string[]
 }
 
-export default function Results({ userId, jobId }: ResultsProps) {
+export default function Results({ jobId }: ResultsProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [executionStatus, setExecutionStatus] = useState<ExecutionStatus | null>(null)

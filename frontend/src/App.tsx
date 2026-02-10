@@ -9,7 +9,7 @@ import Dashboard from './components/Dashboard'
 import { amplifyConfig } from './config/amplify'
 
 // Configure Amplify
-Amplify.configure(amplifyConfig)
+Amplify.configure(amplifyConfig as any)
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {

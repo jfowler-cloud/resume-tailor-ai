@@ -29,7 +29,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
   const resumeOptions = uploadedResumes.map(key => ({
     label: key.split('/').pop() || key,
     value: key
-  }))
+  })) as { label: string; value: string }[]
 
   const handleSubmit = async () => {
     if (!jobDescription.trim()) {
@@ -114,7 +114,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         >
           <Multiselect
             selectedOptions={selectedResumes}
-            onChange={({ detail }) => setSelectedResumes(detail.selectedOptions)}
+            onChange={({ detail }) => setSelectedResumes(detail.selectedOptions as { label: string; value: string }[])}
             options={resumeOptions}
             placeholder="Select resumes"
             empty="No resumes uploaded yet"

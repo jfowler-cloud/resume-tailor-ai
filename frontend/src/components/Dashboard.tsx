@@ -75,6 +75,13 @@ export default function Dashboard({ user }: DashboardProps) {
                 />
               ),
               disabled: !currentJobId
+            },
+            {
+              id: 'library',
+              label: 'Resume Library',
+              content: (
+                <ResumeManagement userId={user?.userId || 'unknown'} />
+              )
             }
           ]}
         />
