@@ -6,6 +6,7 @@ import Tabs from '@cloudscape-design/components/tabs'
 import ResumeUpload from './ResumeUpload'
 import JobAnalysis from './JobAnalysis'
 import Results from './Results'
+import ResumeManagement from './ResumeManagement'
 import { AuthUser } from 'aws-amplify/auth'
 
 interface DashboardProps {
@@ -74,6 +75,13 @@ export default function Dashboard({ user }: DashboardProps) {
                 />
               ),
               disabled: !currentJobId
+            },
+            {
+              id: 'library',
+              label: 'Resume Library',
+              content: (
+                <ResumeManagement userId={user?.userId || 'unknown'} />
+              )
             }
           ]}
         />

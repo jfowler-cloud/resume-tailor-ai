@@ -9,7 +9,7 @@ import Dashboard from './components/Dashboard'
 import { amplifyConfig } from './config/amplify'
 
 // Configure Amplify
-Amplify.configure(amplifyConfig)
+Amplify.configure(amplifyConfig as any)
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -37,7 +37,7 @@ function App() {
               title: 'Resume Tailor AI',
               logo: {
                 src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"%3E%3Cpath d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/%3E%3Cpolyline points="14 2 14 8 20 8"/%3E%3Cpath d="M12 18v-6M9 15l3 3 3-3"/%3E%3C/svg%3E',
-                alt: 'Resume Tailor'
+                alt: 'Resume Tailor AI'
               }
             }}
             utilities={[

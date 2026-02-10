@@ -5,6 +5,7 @@ Creates customized resume optimized for specific job posting
 import json
 import os
 import boto3
+from datetime import datetime
 from botocore.config import Config
 from extract_json import extract_json_from_text
 from typing import Dict, Any
@@ -39,11 +40,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         bucket_name = os.environ['BUCKET_NAME']
         job_id = event.get('jobId', 'unknown')
+        user_id = event.get('userId', 'unknown')  # Capture userId early
         resume_keys = event.get('resumeS3Keys', [event.get('resumeS3Key', '')])
         if isinstance(resume_keys, str):
             resume_keys = [resume_keys]
         
-        print(f"Processing job: {job_id} with {len(resume_keys)} resume(s)")
+        print(f"Processing job: {job_id} for user: {user_id} with {len(resume_keys)} resume(s)")
         
         parsed_job = event.get('parsedJob', {})
         analysis = event.get('analysis', {})
@@ -159,6 +161,19 @@ Return ONLY valid JSON."""
         )
         
         print(f"Saved tailored resume to S3: {tailored_key}")
+        
+        # Also save to uploads folder for reuse (use captured user_id from start)
+        timestamp = int(datetime.now().timestamp() * 1000)
+        reusable_key = f"uploads/{user_id}/{timestamp}-tailored-{job_id[:13]}.md"
+        
+        s3.put_object(
+            Bucket=bucket_name,
+            Key=reusable_key,
+            Body=tailored_resume.encode('utf-8'),
+            ContentType='text/markdown'
+        )
+        
+        print(f"Saved reusable copy to: {reusable_key}")
         
         return {
             'statusCode': 200,

@@ -26,7 +26,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         job_id = event.get('jobId', '')
         user_id = event.get('userId', 'anonymous')
-        timestamp = int(datetime.utcnow().timestamp() * 1000)
+        
+        # Extract timestamp from jobId (format: job-1770764725413)
+        timestamp = int(job_id.split('-')[1]) if '-' in job_id else int(datetime.utcnow().timestamp() * 1000)
+        
+        # Extract critique data from analysis
+        analysis_data = event.get('analysis', {})
         
         # Prepare item for DynamoDB
         item = {
@@ -35,8 +40,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'userId': user_id,
             'jobDescription': event.get('jobDescription', ''),
             'parsedJob': event.get('parsedJob', {}),
-            'analysis': event.get('analysis', {}),
-            'fitScore': event.get('fitScore', 0),
+            'analysis': analysis_data,
+            'fitScore': analysis_data.get('fitScore', 0),
+            'matchedSkills': analysis_data.get('matchedSkills', []),
+            'missingSkills': analysis_data.get('missingSkills', []),
+            'strengths': analysis_data.get('strengths', []),
+            'weaknesses': analysis_data.get('weaknesses', []),
+            'gaps': analysis_data.get('gaps', []),
+            'recommendations': analysis_data.get('recommendations', []),
+            'actionItems': analysis_data.get('actionItems', []),
             'tailoredResumeS3Key': event.get('tailoredResumeS3Key', ''),
             'atsOptimizedResume': event.get('atsOptimizedResume', ''),
             'atsScore': event.get('atsScore', 0),
