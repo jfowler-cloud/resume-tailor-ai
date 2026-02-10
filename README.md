@@ -1,10 +1,10 @@
 # 🎯 AI-Powered Resume Tailor Platform
 
-> Leverage Claude 4.5 to automatically tailor your resume for any job posting
+> Leverage Claude Sonnet 4 to automatically tailor your resume for any job posting
 
 [![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
 [![CDK](https://img.shields.io/badge/CDK-TypeScript-blue)](https://aws.amazon.com/cdk/)
-[![Claude](https://img.shields.io/badge/Claude-4.5-purple)](https://www.anthropic.com/claude)
+[![Claude](https://img.shields.io/badge/Claude-Sonnet-4-purple)](https://www.anthropic.com/claude)
 [![React](https://img.shields.io/badge/React-18-blue)](https://react.dev/)
 [![Tests](https://img.shields.io/badge/Tests-23%20passing-brightgreen)](https://github.com)
 
@@ -12,14 +12,14 @@
 
 ## 📋 Overview
 
-An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude 4.5. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
+An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Sonnet 4. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
 
 ### ✨ Key Features
 
 - 🔐 **User Authentication** - Cognito with email/password
 - 📤 **Multiple Resume Upload** - Upload and manage multiple resume versions (.md, .txt)
 - 📚 **Resume Library** - View, download, and manage all your resumes in one place
-- 🤖 **AI Analysis** - Claude 4.5 evaluates fit and identifies gaps
+- 🤖 **AI Analysis** - Claude Sonnet 4 evaluates fit and identifies gaps
 - 📊 **Detailed Critique** - Fit scores, matched/missing skills, strengths, weaknesses
 - ✍️ **Automated Tailoring** - AI rewrites resume to emphasize relevant experience
 - 🔄 **Reusable Tailored Resumes** - Automatically saved for future applications
@@ -91,13 +91,13 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
         ↓
 ┌─────────────────────────────────────────┐
 │  Step Functions Workflow                │
-│  1. Parse Job (Claude 4.5 Sonnet)      │
-│  2. Analyze Resume Fit (Claude 4.5 Opus)│
+│  1. Parse Job (Claude Sonnet 4 Sonnet)      │
+│  2. Analyze Resume Fit (Claude Sonnet 4 Opus)│
 │  3. Generate Tailored Resume            │
 │  4. Parallel Processing:                │
-│     - ATS Optimize (Claude 4.5 Haiku)   │
-│     - Cover Letter (Claude 4.5 Sonnet)  │
-│     - Critical Review (Claude 4.5 Opus) │
+│     - ATS Optimize (Claude Sonnet 4 Haiku)   │
+│     - Cover Letter (Claude Sonnet 4 Sonnet)  │
+│     - Critical Review (Claude Sonnet 4 Opus) │
 │  5. Save Results (DynamoDB)             │
 │  6. Send Notification (SES)             │
 └─────────────────────────────────────────┘
@@ -109,7 +109,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 
 1. **Upload Resumes** - Upload one or more resumes in Markdown or text format
 2. **Paste Job Description** - Copy the entire job posting
-3. **AI Analysis** - Claude 4.5 extracts requirements and evaluates fit
+3. **AI Analysis** - Claude Sonnet 4 extracts requirements and evaluates fit
 4. **Get Results** - Receive tailored resume, cover letter, and detailed feedback in 30-60 seconds
 5. **Manage Library** - View, download, and reuse all your resumes from the Resume Library
 
@@ -158,7 +158,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | **Authentication** | AWS Cognito | User management |
 | **API** | Lambda (Python 3.14) | Serverless backend |
 | **Orchestration** | Step Functions | Workflow management |
-| **AI** | Amazon Bedrock (Claude 4.5) | Resume analysis & generation |
+| **AI** | Amazon Bedrock (Claude Sonnet 4) | Resume analysis & generation |
 | **Storage** | S3 + DynamoDB | Data persistence |
 | **IaC** | AWS CDK (TypeScript) | Infrastructure as code |
 | **Testing** | Vitest + pytest | Unit tests |
@@ -172,7 +172,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | **Cognito** | 1 user | **$0** (free tier) |
 | Lambda | ~100 invocations | Free tier |
 | Step Functions | ~20 executions | $0.05 |
-| Bedrock Claude 4.5 | ~50K tokens | $0.75 |
+| Bedrock Claude Sonnet 4 | ~50K tokens | $0.75 |
 | DynamoDB | On-demand | $0.25 |
 | S3 | ~1GB storage | $0.02 |
 | SES | ~20 emails | $0.002 |
@@ -261,7 +261,7 @@ See [TESTING.md](TESTING.md) for detailed testing guide.
 ### v1.0.0 - Initial Release
 - 🎉 Core resume tailoring functionality
 - 🎉 AWS serverless architecture
-- 🎉 Claude 4.5 integration
+- 🎉 Claude Sonnet 4 integration
 - 🎉 User authentication
 
 ---
@@ -281,7 +281,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🙏 Acknowledgments
 
 - AWS for serverless infrastructure
-- Anthropic for Claude 4.5 AI models
+- Anthropic for Claude Sonnet 4 AI models
 - Cloudscape Design System for UI components
 - React and Vite communities
 
@@ -296,4 +296,4 @@ For issues, questions, or suggestions:
 
 ---
 
-**Built with ❤️ using AWS, React, and Claude 4.5**
+**Built with ❤️ using AWS, React, and Claude Sonnet 4**
