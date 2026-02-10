@@ -13,9 +13,9 @@
 
 ## 📋 Overview
 
-An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Sonnet 4.5. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
+An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Sonnet 4. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
 
-**Built in a single day** leveraging modern AI-assisted development with AWS Kiro CLI and Claude Sonnet 4.5, demonstrating rapid full-stack development capabilities with production-ready infrastructure, comprehensive testing, and enterprise-grade features.
+**Built in a single day** leveraging modern AI-assisted development with AWS Kiro CLI and Claude Sonnet 4, demonstrating rapid full-stack development capabilities with production-ready infrastructure, comprehensive testing, and enterprise-grade features.
 
 ### ✨ Key Features
 
@@ -39,43 +39,50 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 
 ### Prerequisites
 
-- AWS Account with credentials configured
-- AWS CLI installed
-- Node.js 24+
-- Python 3.14+
+- AWS Account with credentials configured (`aws configure`)
+- Node.js 18+ and npm
+- Python 3.12+
 
-### Installation
+### Deploy Backend (5 minutes)
 
 ```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/jfowler-cloud/resume-tailor-ai.git
 cd resume-tailor-ai
-
-# Install dependencies
 npm install
 
-# Bootstrap CDK (first time only)
+# Bootstrap CDK (first time only in your AWS account/region)
 npx cdk bootstrap
 
-# Deploy to AWS
-npx cdk deploy --require-approval never
+# Deploy infrastructure
+npx cdk deploy
+
+# Copy outputs - you'll need these for frontend
 ```
 
-### Frontend Setup
+The CDK will output values like `UserPoolId`, `UserPoolClientId`, etc. Save these for the next step.
+
+### Setup Frontend (2 minutes)
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
 
-# Create .env file with CDK outputs
-cp .env.example .env
-# Edit .env with values from: aws cloudformation describe-stacks --stack-name ResumeTailorStack
+# Create .env file
+cat > .env << 'EOF'
+VITE_AWS_REGION=us-east-1
+VITE_USER_POOL_ID=<UserPoolId from CDK output>
+VITE_USER_POOL_CLIENT_ID=<UserPoolClientId from CDK output>
+VITE_IDENTITY_POOL_ID=<IdentityPoolId from CDK output>
+VITE_BUCKET_NAME=<BucketName from CDK output>
+VITE_STATE_MACHINE_ARN=<StateMachineArn from CDK output>
+EOF
 
-# Run dev server
+# Start dev server
 npm run dev
 ```
+
+**Important:** Enable Claude Sonnet 4 in [Bedrock Console](https://console.aws.amazon.com/bedrock/) → Model access before first use.
 
 Open http://localhost:5173 and create an account!
 
