@@ -303,6 +303,7 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - CI/CD pipeline automation
 - Integration and E2E tests
 - Multi-language support
+- **TODO: Display critical review feedback in Results UI** (currently generated but not shown)
 
 ---
 

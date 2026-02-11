@@ -265,7 +265,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(2),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -278,7 +278,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(2),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -291,7 +291,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(2),
+      timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -366,18 +366,32 @@ export class ResumeTailorStack extends cdk.Stack {
 
     const atsOptimizeTask = new tasks.LambdaInvoke(this, 'ATSOptimization', {
       lambdaFunction: atsOptimizeFn,
+      payload: sfn.TaskInput.fromObject({
+        'tailoredResumeMarkdown.$': '$.tailoredResume.Payload.tailoredResumeMarkdown',
+        'parsedJob.$': '$.parsedJob.Payload',
+      }),
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const coverLetterTask = new tasks.LambdaInvoke(this, 'GenerateCoverLetter', {
       lambdaFunction: coverLetterFn,
+      payload: sfn.TaskInput.fromObject({
+        'jobId.$': '$.jobId',
+        'jobDescription.$': '$.jobDescription',
+        'tailoredResumeMarkdown.$': '$.tailoredResume.Payload.tailoredResumeMarkdown',
+        'parsedJob.$': '$.parsedJob.Payload',
+        'analysis.$': '$.analysis.Payload',
+      }),
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
 
     const criticalReviewTask = new tasks.LambdaInvoke(this, 'CriticalReview', {
       lambdaFunction: criticalReviewFn,
+      payload: sfn.TaskInput.fromObject({
+        'tailoredResumeMarkdown.$': '$.tailoredResume.Payload.tailoredResumeMarkdown',
+      }),
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
     });
