@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Amplify } from 'aws-amplify'
-import { Authenticator } from '@aws-amplify/ui-react'
+import { CustomAuthenticator } from './components/CustomAuthenticator'
 import '@aws-amplify/ui-react/styles.css'
 import './App.css'
 import AppLayout from '@cloudscape-design/components/app-layout'
@@ -29,8 +29,8 @@ function App() {
   }
 
   return (
-    <Authenticator hideSignUp={true}>
-      {({ signOut, user }) => (
+    <CustomAuthenticator>
+      {({ signOut, user }: any) => (
         <div style={{ height: '100vh' }}>
           <TopNavigation
             identity={{
@@ -72,7 +72,7 @@ function App() {
           />
         </div>
       )}
-    </Authenticator>
+    </CustomAuthenticator>
   )
 }
 

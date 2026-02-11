@@ -17,3 +17,83 @@
 [class*="awsui_identity"] a {
   max-width: none !important;
 }
+
+/* Custom login screen styling - Modern Dark Mode */
+[data-amplify-authenticator] {
+  --amplify-components-authenticator-container-width-max: 600px;
+  --amplify-components-button-primary-background-color: #0972d3;
+  --amplify-components-button-primary-hover-background-color: #0d8aec;
+  --amplify-components-fieldcontrol-padding-block: 16px;
+  --amplify-components-fieldcontrol-padding-inline: 20px;
+  --amplify-components-fieldcontrol-font-size: 18px;
+  --amplify-components-fieldcontrol-border-radius: 8px;
+  --amplify-colors-background-primary: #1a1a1a;
+  --amplify-colors-background-secondary: #2d2d2d;
+  --amplify-colors-font-primary: #ffffff;
+  --amplify-colors-font-secondary: #b0b0b0;
+  --amplify-colors-border-primary: #404040;
+}
+
+[data-amplify-authenticator] [data-amplify-container] {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+[data-amplify-authenticator] [data-amplify-form] {
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  padding: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 600px;
+}
+
+[data-amplify-authenticator] .amplify-field {
+  margin-bottom: 28px;
+}
+
+[data-amplify-authenticator] .amplify-label {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+[data-amplify-authenticator] .amplify-input {
+  min-height: 56px;
+  font-size: 18px;
+  background: rgba(45, 45, 45, 0.8);
+  border: 1px solid #404040;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+[data-amplify-authenticator] .amplify-input:focus {
+  border-color: #0972d3;
+  box-shadow: 0 0 0 3px rgba(9, 114, 211, 0.2);
+  background: rgba(45, 45, 45, 1);
+}
+
+[data-amplify-authenticator] .amplify-button {
+  min-height: 56px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+[data-amplify-authenticator] .amplify-button--primary {
+  background: linear-gradient(135deg, #0972d3 0%, #0d8aec 100%);
+}
+
+[data-amplify-authenticator] .amplify-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(9, 114, 211, 0.4);
+}
