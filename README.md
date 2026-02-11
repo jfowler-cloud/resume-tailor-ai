@@ -126,6 +126,34 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 
 ---
 
+## 📸 Screenshots
+
+### Upload Resumes
+![Upload Resume Interface](docs/images/upload_resumes.png)
+*Drag-and-drop interface for uploading multiple resumes in Markdown or text format*
+
+### Resume Library
+![Resume Library](docs/images/resume_library.png)
+*Manage all your resumes in one place - view, download, and organize uploaded and tailored versions*
+
+### Analyze Job
+![Job Analysis Interface](docs/images/analyze_job.png)
+*Paste job description, select resumes to analyze, and add optional company name and custom instructions*
+
+### Results - Fit Analysis
+![Results - Fit Score and Skills](docs/images/results_1.png)
+*Detailed fit analysis with color-coded score, matched skills (green), and missing skills (red)*
+
+### Results - Strengths & Recommendations
+![Results - Strengths and Weaknesses](docs/images/results_2.png)
+*AI-generated strengths, weaknesses, and actionable recommendations for improvement*
+
+### Results - Tailored Resume & Cover Letter
+![Results - Tailored Content](docs/images/results_3.png)
+*AI-optimized resume and personalized cover letter with download options*
+
+---
+
 ## 🎯 Dashboard Features
 
 ### 1. Upload Resume

@@ -21,7 +21,7 @@ from parse_job import handler as parse_job_handler
 test_event = {
     'jobId': 'test-job-123',
     'jobDescription': '''
-AI/ML Research Scientist position at Peraton Labs.
+AI/ML Research Scientist position at Acme Corp.
 Required: Python, AWS, Machine Learning, LLMs
 Preferred: Claude, Bedrock, Agentic AI
 '''
