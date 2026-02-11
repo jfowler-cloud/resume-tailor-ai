@@ -201,7 +201,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Frontend** | React 18 + TypeScript + Vite | User interface |
+| **Frontend** | React 19 + TypeScript + Vite | User interface |
 | **UI Components** | Cloudscape Design System | AWS-native components |
 | **Authentication** | AWS Cognito | User management |
 | **API** | Lambda (Python 3.14) | Serverless backend |

@@ -1,6 +1,6 @@
 # Resume Tailor Frontend
 
-React 18 + TypeScript + Vite + Cloudscape Design System + AWS Amplify
+React 19 + TypeScript + Vite + Cloudscape Design System + AWS Amplify
 
 ## Features
 
@@ -194,7 +194,7 @@ npm run lint
 
 ## Tech Stack
 
-- **React 18** - UI framework
+- **React 19** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool
 - **Cloudscape** - AWS design system
