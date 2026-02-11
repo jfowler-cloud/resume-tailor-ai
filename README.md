@@ -86,7 +86,16 @@ npm run dev
 
 Open http://localhost:3000 in your browser and create an account!
 
-**Detailed guides:** [QUICKSTART.md](QUICKSTART.md) | [DEPLOYMENT.md](DEPLOYMENT.md)
+### Deploy to CloudFront (Optional - Production)
+
+```bash
+# Deploy frontend to CloudFront for public access
+./deploy-frontend.sh
+```
+
+Your app will be available at the CloudFront URL (e.g., `https://d1234567890abc.cloudfront.net`)
+
+**Detailed guides:** [QUICKSTART.md](QUICKSTART.md) | [DEPLOYMENT.md](DEPLOYMENT.md) | [CLOUDFRONT_DEPLOYMENT.md](CLOUDFRONT_DEPLOYMENT.md)
 
 ---
 
@@ -214,6 +223,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | Bedrock Claude Sonnet 4 | ~50K tokens | $0.75 |
 | DynamoDB | On-demand | $0.25 |
 | S3 | ~1GB storage | $0.02 |
+| CloudFront | ~1K requests | $0.01 |
 | SES | ~20 emails | $0.002 |
 | **Total** | | **~$1-2/month** |
 

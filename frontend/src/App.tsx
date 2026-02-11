@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Amplify } from 'aws-amplify'
 import { Authenticator } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
+import './App.css'
 import AppLayout from '@cloudscape-design/components/app-layout'
 import TopNavigation from '@cloudscape-design/components/top-navigation'
 import { applyMode, Mode } from '@cloudscape-design/global-styles'
@@ -28,7 +29,7 @@ function App() {
   }
 
   return (
-    <Authenticator>
+    <Authenticator hideSignUp={true}>
       {({ signOut, user }) => (
         <div style={{ height: '100vh' }}>
           <TopNavigation

@@ -7,6 +7,9 @@ import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
 
 export class ResumeTailorStack extends cdk.Stack {
@@ -62,6 +65,47 @@ export class ResumeTailorStack extends cdk.Stack {
       ],
     });
 
+    // S3 Bucket for hosting frontend
+    const hostingBucket = new s3.Bucket(this, 'HostingBucket', {
+      bucketName: `resume-tailor-hosting-${this.account}`,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // CloudFront Origin Access Identity
+    const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI', {
+      comment: 'OAI for Resume Tailor frontend',
+    });
+
+    hostingBucket.grantRead(originAccessIdentity);
+
+    // CloudFront Distribution
+    const distribution = new cloudfront.Distribution(this, 'Distribution', {
+      defaultBehavior: {
+        origin: new origins.S3Origin(hostingBucket, {
+          originAccessIdentity,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+      },
+      defaultRootObject: 'index.html',
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+          ttl: cdk.Duration.minutes(5),
+        },
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+          ttl: cdk.Duration.minutes(5),
+        },
+      ],
+    });
+
     // S3 Bucket for resume storage
     const resumeBucket = new s3.Bucket(this, 'ResumeBucket', {
       bucketName: `resume-tailor-${this.account}`,
@@ -77,7 +121,11 @@ export class ResumeTailorStack extends cdk.Stack {
             s3.HttpMethods.DELETE,
             s3.HttpMethods.HEAD,
           ],
-          allowedOrigins: ['http://localhost:3000', 'http://localhost:5173'],
+          allowedOrigins: [
+            'http://localhost:3000',
+            'http://localhost:5173',
+            `https://${distribution.distributionDomainName}`,
+          ],
           allowedHeaders: ['*'],
           exposedHeaders: ['ETag'],
           maxAge: 3000,
@@ -485,6 +533,18 @@ export class ResumeTailorStack extends cdk.Stack {
       value: appRole.roleArn,
       description: 'Application role ARN for frontend',
       exportName: 'ResumeTailorAppRoleArn',
+    });
+
+    new cdk.CfnOutput(this, 'DistributionDomainName', {
+      value: distribution.distributionDomainName,
+      description: 'CloudFront distribution domain name',
+      exportName: 'ResumeTailorDistributionDomain',
+    });
+
+    new cdk.CfnOutput(this, 'HostingBucketName', {
+      value: hostingBucket.bucketName,
+      description: 'S3 bucket for frontend hosting',
+      exportName: 'ResumeTailorHostingBucket',
     });
   }
 }

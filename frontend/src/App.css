@@ -1,0 +1,19 @@
+/* Fix TopNavigation title truncation - expand the identity container */
+[class*="awsui_identity"] {
+  max-width: none !important;
+  min-width: 200px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ensure title text doesn't truncate */
+[class*="awsui_identity"] [class*="awsui_title"] {
+  max-width: none !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Also fix the link wrapper */
+[class*="awsui_identity"] a {
+  max-width: none !important;
+}
