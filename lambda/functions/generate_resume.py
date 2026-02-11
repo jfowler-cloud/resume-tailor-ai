@@ -110,7 +110,7 @@ Return ONLY valid JSON."""
         
         # Call Claude 4.5 Sonnet with streaming for resume generation
         response = bedrock.invoke_model_with_response_stream(
-            modelId='us.anthropic.claude-sonnet-4-20250514-v1:0',
+            modelId='us.anthropic.claude-opus-4-5-20251101-v1:0',
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 16384,
