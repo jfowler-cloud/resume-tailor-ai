@@ -361,7 +361,7 @@ export class ResumeTailorStack extends cdk.Stack {
     const parseJobTask = new tasks.LambdaInvoke(this, 'ParseJobDescription', {
       lambdaFunction: parseJobFn,
       resultPath: '$.parsedJob',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const analyzeResumeTask = new tasks.LambdaInvoke(this, 'AnalyzeResumeFit', {
@@ -374,7 +374,7 @@ export class ResumeTailorStack extends cdk.Stack {
         'userEmail.$': '$.userEmail',
       }),
       resultPath: '$.analysis',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const generateResumeTask = new tasks.LambdaInvoke(this, 'GenerateTailoredResume', {
@@ -387,7 +387,7 @@ export class ResumeTailorStack extends cdk.Stack {
         'analysis.$': '$.analysis.Payload',
       }),
       resultPath: '$.tailoredResume',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const atsOptimizeTask = new tasks.LambdaInvoke(this, 'ATSOptimization', {
@@ -397,7 +397,7 @@ export class ResumeTailorStack extends cdk.Stack {
         'parsedJob.$': '$.parsedJob.Payload',
       }),
       outputPath: '$.Payload',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const coverLetterTask = new tasks.LambdaInvoke(this, 'GenerateCoverLetter', {
@@ -410,7 +410,7 @@ export class ResumeTailorStack extends cdk.Stack {
         'analysis.$': '$.analysis.Payload',
       }),
       outputPath: '$.Payload',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const criticalReviewTask = new tasks.LambdaInvoke(this, 'CriticalReview', {
@@ -419,7 +419,7 @@ export class ResumeTailorStack extends cdk.Stack {
         'tailoredResumeMarkdown.$': '$.tailoredResume.Payload.tailoredResumeMarkdown',
       }),
       outputPath: '$.Payload',
-      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(5)),
+      taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
 
     const saveResultsTask = new tasks.LambdaInvoke(this, 'SaveResults', {
