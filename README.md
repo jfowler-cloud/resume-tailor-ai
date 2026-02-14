@@ -83,6 +83,8 @@ npm run dev
 
 **Important:** Request access to Claude Opus 4.5 in [Bedrock Console](https://console.aws.amazon.com/bedrock/) → Model access before first use.
 
+> **Note:** Claude Opus 4.6 is now available in AWS Bedrock. Future versions may upgrade to 4.6 for improved performance. Current deployment uses Claude 4.5 models (Haiku 4.5, Sonnet 4.5, Opus 4.5).
+
 Open http://localhost:3000 in your browser and create an account!
 
 ### Deploy to CloudFront (Optional - Production)
