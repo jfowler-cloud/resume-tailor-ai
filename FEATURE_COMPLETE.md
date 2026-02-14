@@ -184,8 +184,8 @@ f5e55ba - feat: add resume management and reusable tailored resumes
 ## AWS Resources
 
 - **Region:** us-east-1
-- **Account:** 831729228662
-- **S3 Bucket:** resume-tailor-831729228662
+- **Account:** XXXXXXXXXXXX
+- **S3 Bucket:** resume-tailor-XXXXXXXXXXXX
 - **DynamoDB Table:** ResumeTailorResults
 - **State Machine:** ResumeTailorWorkflow
 - **Stack:** ResumeTailorStack

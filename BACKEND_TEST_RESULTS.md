@@ -14,7 +14,7 @@
    - ResumeTailor-SaveResults
    - ResumeTailor-Notify
 
-✅ **S3 Bucket:** resume-tailor-831729228662
+✅ **S3 Bucket:** resume-tailor-XXXXXXXXXXXX
    - Uploads folder: 31 resumes found
    - Tailored folder: Working (last job: job-XXXXXXXXXXXXX)
 
@@ -36,8 +36,8 @@
 ### Frontend Configuration
 ✅ **Environment Variables:** Configured in .env
    - Region: us-east-1
-   - Bucket: resume-tailor-831729228662
-   - User Pool: us-east-1_cizWQDrIf
+   - Bucket: resume-tailor-XXXXXXXXXXXX
+   - User Pool: us-east-1_XXXXXXXXX
    - Identity Pool: us-east-1:37771b4d-7a0c-4661-b4e3-e87f52d3c944
    - State Machine: ResumeTailorWorkflow
    - Table: ResumeTailorResults

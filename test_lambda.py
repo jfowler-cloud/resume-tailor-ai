@@ -10,7 +10,7 @@ import os
 sys.path.insert(0, 'lambda/functions')
 
 # Set environment variables
-os.environ['BUCKET_NAME'] = 'resume-tailor-831729228662'
+os.environ['BUCKET_NAME'] = 'resume-tailor-XXXXXXXXXXXX'
 os.environ['TABLE_NAME'] = 'ResumeTailorResults'
 os.environ['BEDROCK_REGION'] = 'us-east-1'
 
