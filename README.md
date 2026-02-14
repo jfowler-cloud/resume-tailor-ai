@@ -42,6 +42,7 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 - AWS Account with credentials configured (`aws configure`)
 - Node.js 24+ and npm
 - Python 3.14+
+- jq (JSON processor) - `sudo apt install jq` or `brew install jq`
 
 ### Deploy Backend (5 minutes)
 
@@ -51,34 +52,25 @@ git clone https://github.com/jfowler-cloud/resume-tailor-ai.git
 cd resume-tailor-ai
 npm install
 
+# Install git hooks (prevents committing sensitive data)
+./scripts/install-git-hooks.sh
+
 # Bootstrap CDK (first time only in your AWS account/region)
 npx cdk bootstrap
 
 # Deploy infrastructure
 npx cdk deploy
-
-# Copy outputs - you'll need these for frontend
 ```
 
-The CDK will output values like `UserPoolId`, `UserPoolClientId`, etc. Save these for the next step.
-
-### Setup Frontend (2 minutes)
+### Setup Frontend (1 minute)
 
 ```bash
+# Auto-configure from deployed stack
+./scripts/setup-frontend-config.sh
+
+# Install and start
 cd frontend
 npm install
-
-# Create .env file
-cat > .env << 'EOF'
-VITE_AWS_REGION=us-east-1
-VITE_USER_POOL_ID=<UserPoolId from CDK output>
-VITE_USER_POOL_CLIENT_ID=<UserPoolClientId from CDK output>
-VITE_IDENTITY_POOL_ID=<IdentityPoolId from CDK output>
-VITE_BUCKET_NAME=<BucketName from CDK output>
-VITE_STATE_MACHINE_ARN=<StateMachineArn from CDK output>
-EOF
-
-# Start dev server
 npm run dev
 ```
 

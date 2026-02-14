@@ -10,6 +10,7 @@ cdk.out
 # Environment variables
 .env
 .env.*
+.deploy-config.json
 
 # IDE
 .vscode
@@ -46,6 +47,7 @@ lambda/layers/**/__pycache__/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/src/aws-config.json
 
 # Resumes (personal data)
 resumes/
