@@ -11,10 +11,18 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
+import { getModelConfig } from './model-config';
 
 export class ResumeTailorStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // Get deployment mode from context (default: PREMIUM)
+    const deploymentMode = this.node.tryGetContext('deploymentMode') || 'PREMIUM';
+    const modelConfig = getModelConfig(deploymentMode);
+    
+    console.log(`🚀 Deploying with ${deploymentMode} mode`);
+    console.log('Model configuration:', modelConfig);
 
     // Cognito User Pool for authentication
     const userPool = new cognito.UserPool(this, 'UserPool', {
@@ -225,7 +233,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'parse_job.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.parseJob,
+      },
       timeout: cdk.Duration.minutes(5),
       memorySize: 512,
       layers: [sharedLayer],
@@ -238,7 +249,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'analyze_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.analyzeResume,
+      },
       timeout: cdk.Duration.minutes(2),
       memorySize: 1024,
       layers: [sharedLayer],
@@ -251,7 +265,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'generate_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.generateResume,
+      },
       timeout: cdk.Duration.minutes(10),
       memorySize: 2048,
       layers: [sharedLayer],
@@ -264,7 +281,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'ats_optimize.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.atsOptimize,
+      },
       timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],
@@ -277,7 +297,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'cover_letter.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.coverLetter,
+      },
       timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],
@@ -290,7 +313,10 @@ export class ResumeTailorStack extends cdk.Stack {
       handler: 'critical_review.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
-      environment: lambdaEnvironment,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.criticalReview,
+      },
       timeout: cdk.Duration.minutes(5),
       memorySize: 1024,
       layers: [sharedLayer],

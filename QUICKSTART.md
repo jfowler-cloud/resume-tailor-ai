@@ -38,14 +38,22 @@ This creates the CDK toolkit stack for deployments.
 
 ## Step 3: Deploy Backend (5 minutes)
 
+Choose your deployment mode:
+
 ```bash
+# PREMIUM: Claude Opus 4.5 for all (best quality, ~$4-5/month)
 npx cdk deploy
+
+# OPTIMIZED: Mixed models (60% cost savings, ~$1-2/month)
+npx cdk deploy -c deploymentMode=OPTIMIZED
 ```
+
+**Recommendation:** Start with OPTIMIZED mode for cost savings.
 
 This creates:
 - S3 bucket for resume storage
 - DynamoDB table for results
-- 8 Lambda functions
+- 8 Lambda functions (with configured AI models)
 - Step Functions workflow
 - Cognito user pool
 - IAM roles with Bedrock permissions

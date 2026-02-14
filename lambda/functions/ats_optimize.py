@@ -61,7 +61,7 @@ Return ONLY valid JSON."""
 
         # Call Claude 4.5 Haiku for fast ATS optimization
         response = bedrock.invoke_model(
-            modelId='us.anthropic.claude-opus-4-5-20251101-v1:0',
+            modelId=os.environ.get('MODEL_ID', 'us.anthropic.claude-opus-4-5-20251101-v1:0'),
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 8192,

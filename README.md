@@ -58,9 +58,16 @@ npm install
 # Bootstrap CDK (first time only in your AWS account/region)
 npx cdk bootstrap
 
-# Deploy infrastructure
-npx cdk deploy
+# Deploy infrastructure (choose mode)
+npx cdk deploy                              # Premium: Opus 4.5 for all (best quality)
+npx cdk deploy -c deploymentMode=OPTIMIZED  # Optimized: Mixed models (60% cost savings)
 ```
+
+**Deployment Modes:**
+- **PREMIUM** (default): Claude Opus 4.5 for all functions (~$4-5/month)
+- **OPTIMIZED**: Mixed models for 60-70% cost savings (~$1-2/month)
+
+See [MODEL_DEPLOYMENT.md](docs/MODEL_DEPLOYMENT.md) for detailed comparison.
 
 ### Setup Frontend (1 minute)
 
