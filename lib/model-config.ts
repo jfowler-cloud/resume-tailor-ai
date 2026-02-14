@@ -38,22 +38,22 @@ export const MODEL_CONFIGS: Record<DeploymentMode, ModelConfig> = {
   // Optimized: Mix of models based on task complexity
   [DeploymentMode.OPTIMIZED]: {
     // Simple parsing - use Haiku 4.5 (fast and cost-effective)
-    parseJob: 'anthropic.claude-haiku-4-5-20251001-v1:0',
+    parseJob: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
     
     // Critical analysis - use Opus 4.5 (best reasoning)
-    analyzeResume: 'anthropic.claude-opus-4-5-20251101-v1:0',
+    analyzeResume: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
     
     // Resume generation - use Opus 4.5 (most important output)
-    generateResume: 'anthropic.claude-opus-4-5-20251101-v1:0',
+    generateResume: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
     
     // ATS optimization - use Sonnet 4.5 (excellent balance)
-    atsOptimize: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
+    atsOptimize: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
     
     // Cover letter - use Sonnet 4.5 (excellent writing quality)
-    coverLetter: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
+    coverLetter: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
     
     // Critical review - use Sonnet 4.5 (strong analysis)
-    criticalReview: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
+    criticalReview: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
   }
 };
 
