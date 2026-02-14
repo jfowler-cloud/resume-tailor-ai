@@ -30,12 +30,12 @@ npx cdk deploy -c deploymentMode=OPTIMIZED
 
 | Function | PREMIUM | OPTIMIZED | Reasoning |
 |----------|---------|-----------|-----------|
-| **Parse Job** | Opus 4.5 | Haiku 3.5 | Simple extraction task |
+| **Parse Job** | Opus 4.5 | Haiku 4.5 | Simple extraction task |
 | **Analyze Resume** | Opus 4.5 | Opus 4.5 | Critical analysis needs best reasoning |
 | **Generate Resume** | Opus 4.5 | Opus 4.5 | Most important output |
-| **ATS Optimize** | Opus 4.5 | Sonnet 3.5 v2 | Good balance of quality/cost |
-| **Cover Letter** | Opus 4.5 | Sonnet 3.5 v2 | Good writing quality |
-| **Critical Review** | Opus 4.5 | Sonnet 3.5 v2 | Good analysis capability |
+| **ATS Optimize** | Opus 4.5 | Sonnet 4.5 | Good balance of quality/cost |
+| **Cover Letter** | Opus 4.5 | Sonnet 4.5 | Good writing quality |
+| **Critical Review** | Opus 4.5 | Sonnet 4.5 | Good analysis capability |
 
 ## Model Specifications
 

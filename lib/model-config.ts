@@ -37,23 +37,23 @@ export const MODEL_CONFIGS: Record<DeploymentMode, ModelConfig> = {
   
   // Optimized: Mix of models based on task complexity
   [DeploymentMode.OPTIMIZED]: {
-    // Simple parsing - use Haiku (cheapest)
-    parseJob: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    // Simple parsing - use Haiku 4.5 (fast and cost-effective)
+    parseJob: 'anthropic.claude-haiku-4-5-20251001-v1:0',
     
     // Critical analysis - use Opus 4.5 (best reasoning)
-    analyzeResume: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
+    analyzeResume: 'anthropic.claude-opus-4-5-20251101-v1:0',
     
     // Resume generation - use Opus 4.5 (most important output)
-    generateResume: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
+    generateResume: 'anthropic.claude-opus-4-5-20251101-v1:0',
     
-    // ATS optimization - use Sonnet (good balance)
-    atsOptimize: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+    // ATS optimization - use Sonnet 4.5 (excellent balance)
+    atsOptimize: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
     
-    // Cover letter - use Sonnet (good writing quality)
-    coverLetter: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+    // Cover letter - use Sonnet 4.5 (excellent writing quality)
+    coverLetter: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
     
-    // Critical review - use Sonnet (good analysis)
-    criticalReview: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+    // Critical review - use Sonnet 4.5 (strong analysis)
+    criticalReview: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
   }
 };
 
@@ -63,13 +63,13 @@ export const MODEL_CONFIGS: Record<DeploymentMode, ModelConfig> = {
  * Claude Opus 4.5:
  *   Input: $15.00 | Output: $75.00
  * 
- * Claude 3.5 Sonnet v2:
+ * Claude Sonnet 4.5:
  *   Input: $3.00 | Output: $15.00
  * 
- * Claude 3.5 Haiku:
+ * Claude Haiku 4.5:
  *   Input: $1.00 | Output: $5.00
  * 
- * Estimated savings with OPTIMIZED mode: ~60-70%
+ * Estimated savings with OPTIMIZED mode: ~50-60%
  */
 
 /**

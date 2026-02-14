@@ -29,12 +29,12 @@ npx cdk deploy -c deploymentMode=PREMIUM
 
 | Function | Model | Why |
 |----------|-------|-----|
-| Parse Job | Haiku 3.5 | Simple extraction |
+| Parse Job | Haiku 4.5 | Simple extraction |
 | Analyze Resume | **Opus 4.5** | Critical analysis |
 | Generate Resume | **Opus 4.5** | Most important output |
-| ATS Optimize | Sonnet 3.5 v2 | Good balance |
-| Cover Letter | Sonnet 3.5 v2 | Good writing |
-| Critical Review | Sonnet 3.5 v2 | Good analysis |
+| ATS Optimize | Sonnet 4.5 | Good balance |
+| Cover Letter | Sonnet 4.5 | Good writing |
+| Critical Review | Sonnet 4.5 | Good analysis |
 
 ## Required Bedrock access
 
