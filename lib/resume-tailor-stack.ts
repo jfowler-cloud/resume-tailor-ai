@@ -237,7 +237,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.parseJob,
       },
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 512,
       layers: [sharedLayer],
     });
@@ -253,7 +253,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.analyzeResume,
       },
-      timeout: cdk.Duration.minutes(2),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -269,7 +269,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.generateResume,
       },
-      timeout: cdk.Duration.minutes(10),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 2048,
       layers: [sharedLayer],
     });
@@ -285,7 +285,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.atsOptimize,
       },
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -301,7 +301,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.coverLetter,
       },
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -317,7 +317,7 @@ export class ResumeTailorStack extends cdk.Stack {
         ...lambdaEnvironment,
         MODEL_ID: modelConfig.criticalReview,
       },
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 1024,
       layers: [sharedLayer],
     });
@@ -330,7 +330,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 512,
       layers: [sharedLayer],
     });
@@ -343,7 +343,7 @@ export class ResumeTailorStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/functions'),
       role: lambdaRole,
       environment: lambdaEnvironment,
-      timeout: cdk.Duration.minutes(5),
+      timeout: cdk.Duration.minutes(13),
       memorySize: 256,
       layers: [sharedLayer],
     });
