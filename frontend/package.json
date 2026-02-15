@@ -12,7 +12,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.0",
+    "@aws-amplify/ui-react": "^6.15.0",
     "@aws-sdk/client-dynamodb": "^3.700.0",
     "@aws-sdk/client-lambda": "^3.990.0",
     "@aws-sdk/client-s3": "^3.700.0",
@@ -22,7 +22,7 @@
     "@aws-sdk/util-dynamodb": "^3.987.0",
     "@cloudscape-design/components": "^3.0.0",
     "@cloudscape-design/global-styles": "^1.0.0",
-    "aws-amplify": "^6.0.0",
+    "aws-amplify": "^6.16.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -36,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^7.0.1",

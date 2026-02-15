@@ -1,9 +1,15 @@
 """
 Unit tests for save_results Lambda function
 """
+import os
 import pytest
 from unittest.mock import Mock, patch
 from save_results import handler
+
+@pytest.fixture(autouse=True)
+def mock_env():
+    with patch.dict(os.environ, {'TABLE_NAME': 'test-table'}):
+        yield
 
 @pytest.fixture
 def mock_dynamodb():
