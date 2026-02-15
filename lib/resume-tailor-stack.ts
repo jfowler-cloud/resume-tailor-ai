@@ -483,7 +483,7 @@ export class ResumeTailorStack extends cdk.Stack {
       definitionBody: sfn.DefinitionBody.fromChainable(definition),
       logs: {
         destination: new logs.LogGroup(this, 'StateMachineLogGroup', {
-          logGroupName: '/aws/stepfunctions/ResumeTailorWorkflow',
+          logGroupName: `/aws/stepfunctions/ResumeTailorWorkflow${suffix}`,
           retention: logs.RetentionDays.ONE_WEEK,
           removalPolicy: cdk.RemovalPolicy.DESTROY,
         }),
@@ -559,61 +559,61 @@ export class ResumeTailorStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'UserPoolId', {
       value: userPool.userPoolId,
       description: 'Cognito User Pool ID',
-      exportName: 'ResumeTailorUserPoolId',
+      exportName: `ResumeTailorUserPoolId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: userPoolClient.userPoolClientId,
       description: 'Cognito User Pool Client ID',
-      exportName: 'ResumeTailorUserPoolClientId',
+      exportName: `ResumeTailorUserPoolClientId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'IdentityPoolId', {
       value: identityPool.ref,
       description: 'Cognito Identity Pool ID',
-      exportName: 'ResumeTailorIdentityPoolId',
+      exportName: `ResumeTailorIdentityPoolId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'BucketName', {
       value: resumeBucket.bucketName,
       description: 'S3 bucket for resume storage',
-      exportName: 'ResumeTailorBucketName',
+      exportName: `ResumeTailorBucketName${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'TableName', {
       value: resultsTable.tableName,
       description: 'DynamoDB table for results',
-      exportName: 'ResumeTailorTableName',
+      exportName: `ResumeTailorTableName${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'StateMachineArn', {
       value: stateMachine.stateMachineArn,
       description: 'Step Functions state machine ARN',
-      exportName: 'ResumeTailorStateMachineArn',
+      exportName: `ResumeTailorStateMachineArn${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'AppRoleArn', {
       value: appRole.roleArn,
       description: 'Application role ARN for frontend',
-      exportName: 'ResumeTailorAppRoleArn',
+      exportName: `ResumeTailorAppRoleArn${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'DistributionDomainName', {
       value: distribution.distributionDomainName,
       description: 'CloudFront distribution domain name',
-      exportName: 'ResumeTailorDistributionDomain',
+      exportName: `ResumeTailorDistributionDomain${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'HostingBucketName', {
       value: hostingBucket.bucketName,
       description: 'S3 bucket for frontend hosting',
-      exportName: 'ResumeTailorHostingBucket',
+      exportName: `ResumeTailorHostingBucket${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'RefineResumeFunctionName', {
       value: refineResumeFn.functionName,
       description: 'Lambda function for refining resumes',
-      exportName: 'ResumeTailorRefineResumeFunction',
+      exportName: `ResumeTailorRefineResumeFunction${suffix}`,
     });
   }
 }

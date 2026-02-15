@@ -47,7 +47,9 @@ lambda/layers/**/__pycache__/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
-frontend/src/aws-config.json
+frontend/src/config/amplify.ts
+frontend/.env
+frontend/.env.*
 
 # Resumes (personal data)
 resumes/

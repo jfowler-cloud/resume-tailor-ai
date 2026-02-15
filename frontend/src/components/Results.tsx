@@ -136,6 +136,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
         console.log('DynamoDB item:', item)
         console.log('fitScore:', item.fitScore)
         console.log('matchedSkills:', item.matchedSkills)
+        console.log('missingSkills:', item.missingSkills)
         setAnalysisData({
           fitScore: item.fitScore,
           matchedSkills: item.matchedSkills,
@@ -149,7 +150,10 @@ export default function Results({ jobId, userId }: ResultsProps) {
         
         // Set critical review data
         if (item.criticalReview) {
+          console.log('Critical review data:', item.criticalReview)
           setCriticalReview(item.criticalReview)
+        } else {
+          console.log('No critical review data found in item')
         }
         
         // Set job description and parsed job for refinement
@@ -452,7 +456,14 @@ ${convertMarkdownToHTML(tailoredResume)}
               </Box>
               {executionStatus.status === 'RUNNING' && (
                 <Box>
-                  <Spinner /> Processing your resume... This may take 30-60 seconds.
+                  <SpaceBetween size="xs">
+                    <Box>
+                      <Spinner /> Processing your resume... This may take a few minutes.
+                    </Box>
+                    <Box color="text-status-info" fontSize="body-s">
+                      ⓘ Don't refresh the page. If the process fails, you'll see an error message automatically.
+                    </Box>
+                  </SpaceBetween>
                 </Box>
               )}
             </SpaceBetween>
