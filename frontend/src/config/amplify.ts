@@ -32,5 +32,6 @@ export const awsConfig = {
   region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
   bucketName: import.meta.env.VITE_BUCKET_NAME || 'resume-tailor-<YOUR-ACCOUNT-ID>',
   stateMachineArn: import.meta.env.VITE_STATE_MACHINE_ARN || 'arn:aws:states:us-east-1:<YOUR-ACCOUNT-ID>:stateMachine:ResumeTailorWorkflow',
-  tableName: import.meta.env.VITE_TABLE_NAME || 'ResumeTailorResults'
+  tableName: import.meta.env.VITE_TABLE_NAME || 'ResumeTailorResults',
+  refineResumeFunctionName: import.meta.env.VITE_REFINE_RESUME_FUNCTION || 'ResumeTailor-RefineResume'
 }
