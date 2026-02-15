@@ -2,9 +2,15 @@
 Unit tests for generate_resume Lambda function
 """
 import json
+import os
 import pytest
 from unittest.mock import Mock, patch
 from generate_resume import handler
+
+@pytest.fixture(autouse=True)
+def mock_env():
+    with patch.dict(os.environ, {'BUCKET_NAME': 'test-bucket', 'MODEL_ID': 'test-model'}):
+        yield
 
 @pytest.fixture
 def mock_s3():

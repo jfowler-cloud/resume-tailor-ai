@@ -270,8 +270,10 @@ ${convertMarkdownToHTML(content)}
         )
       }
 
+      // Clear selection and update state immediately
+      const deletedKeys = new Set(selectedItems.map(item => item.key))
+      setResumes(prev => prev.filter(item => !deletedKeys.has(item.key)))
       setSelectedItems([])
-      await loadResumes()
     } catch (err) {
       console.error('Failed to delete resumes:', err)
     }

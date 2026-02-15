@@ -6,7 +6,7 @@
 [![CDK](https://img.shields.io/badge/CDK-TypeScript-blue)](https://aws.amazon.com/cdk/)
 [![Claude](https://img.shields.io/badge/Claude-Opus%204.5-purple)](https://www.anthropic.com/claude)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
-[![Tests](https://img.shields.io/badge/Tests-23%20passing-brightgreen)](https://github.com)
+[![Tests](https://img.shields.io/badge/Tests-43%20passing-brightgreen)](https://github.com)
 [![Built](https://img.shields.io/badge/Built-In%201%20Day-success)](https://github.com)
 
 ---
@@ -275,15 +275,17 @@ npm run test:coverage # With coverage
 **Backend:**
 ```bash
 cd lambda
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements-test.txt
 PYTHONPATH=functions pytest tests/ -v --cov=functions
 ```
 
 ### Test Coverage
-- ✅ Frontend: 10/10 tests passing
-- ✅ Backend: 13 tests configured
+- ✅ Frontend: 10/10 tests passing (22% coverage)
+- ✅ Backend: 33/33 tests passing (54% coverage)
 - ✅ Components: ResumeUpload, JobAnalysis, ResumeManagement
-- ✅ Lambda Functions: ParseJob, AnalyzeResume, GenerateResume, SaveResults
+- ✅ Lambda Functions: ParseJob (100%), Validation (95%), SaveResults (93%), AnalyzeResume (92%), GenerateResume (88%)
 
 See [TESTING.md](TESTING.md) for detailed testing guide.
 
@@ -318,7 +320,7 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - ✅ Enhanced results display with critique data
 - ✅ PDF print functionality with markdown rendering
 - ✅ Reusable tailored resumes
-- ✅ Unit tests (23 total: 10 frontend, 13 backend)
+- ✅ Unit tests (43 total: 10 frontend, 33 backend)
 - ✅ All features tested and verified
 
 **Development Highlights:**
@@ -338,6 +340,14 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 ---
 
 ## 🚀 Recent Updates
+
+### v2.2.0 - Dependency Updates & Test Improvements (Feb 2026)
+- ✨ Updated AWS Amplify packages to latest versions (6.15.0+)
+- ✨ Added comprehensive backend test coverage (33 tests)
+- ✨ Fixed React 19 peer dependency conflicts
+- ✨ Added environment variable mocking for tests
+- 🐛 Resolved frontend dependency warnings
+- 📝 Updated test documentation with coverage metrics
 
 ### v2.1.0 - Critical Feedback & Resume Refinement (Feb 2026)
 - ✨ Added Critical Feedback component with detailed resume critique

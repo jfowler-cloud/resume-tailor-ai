@@ -5,11 +5,16 @@
 ### Setup
 ```bash
 cd lambda
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements-test.txt
 ```
 
 ### Run Tests
 ```bash
+# Activate virtual environment
+source .venv/bin/activate
+
 # Run all tests
 PYTHONPATH=functions pytest tests/ -v
 
@@ -24,10 +29,19 @@ open htmlcov/index.html
 ```
 
 ### Test Structure
-- `tests/test_parse_job.py` - Tests for job description parsing
-- `tests/test_analyze_resume.py` - Tests for resume analysis
-- `tests/test_generate_resume.py` - Tests for resume generation
-- `tests/test_save_results.py` - Tests for DynamoDB operations
+- `tests/test_parse_job.py` - Tests for job description parsing (4 tests)
+- `tests/test_analyze_resume.py` - Tests for resume analysis (3 tests)
+- `tests/test_generate_resume.py` - Tests for resume generation (3 tests)
+- `tests/test_save_results.py` - Tests for DynamoDB operations (3 tests)
+- `tests/test_validation.py` - Tests for input validation (20 tests)
+
+### Coverage Results
+- **Total**: 33 tests, 54% coverage
+- `parse_job.py` - 100%
+- `validation.py` - 95%
+- `save_results.py` - 93%
+- `analyze_resume.py` - 92%
+- `generate_resume.py` - 88%
 
 ## Frontend Tests (React Components)
 
@@ -50,18 +64,31 @@ npm run test:coverage
 ```
 
 ### Test Structure
-- `__tests__/ResumeUpload.test.tsx` - Resume upload component tests
-- `__tests__/JobAnalysis.test.tsx` - Job analysis form tests
-- `__tests__/ResumeManagement.test.tsx` - Resume library tests
+- `__tests__/ResumeUpload.test.tsx` - Resume upload component tests (3 tests)
+- `__tests__/JobAnalysis.test.tsx` - Job analysis form tests (4 tests)
+- `__tests__/ResumeManagement.test.tsx` - Resume library tests (3 tests)
+
+### Coverage Results
+- **Total**: 10 tests, 22% coverage
+- Components tested: ResumeUpload, JobAnalysis, ResumeManagement
+- Config: amplify.ts - 100%
+
+## Test Summary
+
+| Category | Tests | Coverage | Status |
+|----------|-------|----------|--------|
+| **Backend** | 33 | 54% | ✅ All Passing |
+| **Frontend** | 10 | 22% | ✅ All Passing |
+| **Total** | **43** | - | ✅ **All Passing** |
 
 ## Quick Test Scripts
 
 ```bash
 # Run all backend tests
-./scripts/test-backend.sh
+cd lambda && source .venv/bin/activate && PYTHONPATH=functions pytest tests/ -v
 
 # Run all frontend tests
-./scripts/test-frontend.sh
+cd frontend && npm test
 ```
 
 ## Test Coverage Goals
