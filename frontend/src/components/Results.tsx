@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getCredentials } from '../utils/auth'
+import { printMarkdownAsPDF } from '../utils/markdownToHtml'
 import { SFNClient, DescribeExecutionCommand } from '@aws-sdk/client-sfn'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb'
@@ -62,16 +63,23 @@ export default function Results({ jobId, userId }: ResultsProps) {
   const [parsedJob, setParsedJob] = useState<any>(null)
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollCountRef = useRef(0)
+  const checkStatusRef = useRef<() => Promise<void>>()
+
+  const MAX_POLL_ATTEMPTS = 120 // ~15 min with exponential backoff
 
   // Exponential backoff: 2s, 3s, 4.5s, 6.75s, 10s (capped)
   const getPollingDelay = (attempt: number) => Math.min(2000 * Math.pow(1.5, attempt), 10000)
 
   const schedulePoll = useCallback(() => {
+    if (pollCountRef.current >= MAX_POLL_ATTEMPTS) {
+      setError('Polling timed out. Click "Refresh Status" to check again.')
+      return
+    }
     if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
     const delay = getPollingDelay(pollCountRef.current)
     pollTimeoutRef.current = setTimeout(() => {
       pollCountRef.current++
-      checkStatus()
+      checkStatusRef.current?.()
     }, delay)
   }, [])
 
@@ -114,19 +122,18 @@ export default function Results({ jobId, userId }: ResultsProps) {
         await fetchResults(credentials)
         await fetchAnalysisData(credentials)
       } else if (response.status === 'RUNNING') {
-        // Schedule next poll with backoff
         schedulePoll()
       }
-      // FAILED and SUCCEEDED: stop polling
     } catch (err) {
       console.error('Status check error:', err)
       setError(err instanceof Error ? err.message : 'Failed to check status')
-      // Retry on error too, with backoff
       schedulePoll()
     } finally {
       setLoading(false)
     }
   }
+
+  checkStatusRef.current = checkStatus
 
   const fetchAnalysisData = async (credentials: any) => {
     try {
@@ -140,7 +147,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
 
       const response = await dynamoClient.send(
         new GetItemCommand({
-          TableName: 'ResumeTailorResults',
+          TableName: awsConfig.tableName,
           Key: {
             jobId: { S: jobId! },
             timestamp: { N: timestamp }
@@ -150,10 +157,6 @@ export default function Results({ jobId, userId }: ResultsProps) {
 
       if (response.Item) {
         const item = unmarshall(response.Item)
-        console.log('DynamoDB item:', item)
-        console.log('fitScore:', item.fitScore)
-        console.log('matchedSkills:', item.matchedSkills)
-        console.log('missingSkills:', item.missingSkills)
         setAnalysisData({
           fitScore: item.fitScore,
           matchedSkills: item.matchedSkills,
@@ -164,29 +167,17 @@ export default function Results({ jobId, userId }: ResultsProps) {
           recommendations: item.recommendations,
           actionableSteps: item.actionableSteps
         })
-        
-        // Set critical review data
+
         if (item.criticalReview) {
-          console.log('Critical review data:', item.criticalReview)
           setCriticalReview(item.criticalReview)
-        } else {
-          console.log('No critical review data found in item')
         }
-        
-        // Set job description and parsed job for refinement
+
         if (item.jobDescription) {
           setJobDescription(item.jobDescription)
         }
         if (item.parsedJob) {
           setParsedJob(item.parsedJob)
         }
-        
-        console.log('analysisData set:', {
-          fitScore: item.fitScore,
-          matchedSkills: item.matchedSkills
-        })
-      } else {
-        console.log('No DynamoDB item found for jobId:', jobId, 'timestamp:', timestamp)
       }
     } catch (err) {
       console.error('Fetch analysis data error:', err)
@@ -243,156 +234,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
 
   const downloadResumePDF = () => {
     if (!tailoredResume) return
-    
-    // Convert markdown to HTML with better formatting
-    const convertMarkdownToHTML = (md: string) => {
-      const lines = md.split('\n')
-      let html = ''
-      let inTable = false
-      let tableRows: string[] = []
-      
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        
-        // Detect table
-        if (line.includes('|') && line.trim().startsWith('|')) {
-          if (!inTable) {
-            inTable = true
-            tableRows = []
-          }
-          // Skip separator line
-          if (line.match(/^\|[\s\-:]+\|/)) continue
-          tableRows.push(line)
-          continue
-        } else if (inTable) {
-          // End of table
-          html += '<table><tbody>'
-          tableRows.forEach((row, idx) => {
-            const cells = row.split('|').filter(c => c.trim()).map(c => c.trim())
-            const tag = idx === 0 ? 'th' : 'td'
-            html += '<tr>' + cells.map(c => `<${tag}>${c.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</${tag}>`).join('') + '</tr>'
-          })
-          html += '</tbody></table>'
-          inTable = false
-          tableRows = []
-        }
-        
-        // Headers
-        if (line.startsWith('# ')) {
-          html += `<h1>${line.substring(2)}</h1>`
-        } else if (line.startsWith('## ')) {
-          html += `<h2>${line.substring(3)}</h2>`
-        } else if (line.startsWith('### ')) {
-          html += `<h3>${line.substring(4)}</h3>`
-        } else if (line.trim() === '---') {
-          html += '<hr>'
-        } else if (line.startsWith('- ')) {
-          const content = line.substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          html += `<li>${content}</li>`
-        } else if (line.trim() === '') {
-          html += '<div class="spacer"></div>'
-        } else if (!inTable) {
-          const content = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
-          html += `<p>${content}</p>`
-        }
-      }
-      
-      return html
-    }
-    
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Resume</title>
-  <style>
-    @page { margin: 0.75in; }
-    body { 
-      font-family: 'Calibri', 'Arial', sans-serif; 
-      line-height: 1.4; 
-      max-width: 8.5in; 
-      margin: 0 auto; 
-      padding: 0;
-      font-size: 11pt;
-      color: #000;
-    }
-    h1 { 
-      font-size: 18pt; 
-      margin: 0 0 8pt 0; 
-      font-weight: bold;
-      text-transform: uppercase;
-      border-bottom: 2px solid #000;
-      padding-bottom: 4pt;
-    }
-    h2 { 
-      font-size: 14pt; 
-      margin: 14pt 0 8pt 0; 
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    h3 { 
-      font-size: 12pt; 
-      margin: 10pt 0 6pt 0; 
-      font-weight: bold;
-    }
-    p { 
-      margin: 4pt 0; 
-      text-align: justify;
-    }
-    ul { 
-      margin: 4pt 0; 
-      padding-left: 20pt; 
-      list-style-type: disc;
-    }
-    li { 
-      margin: 3pt 0;
-      text-align: justify;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 8pt 0;
-    }
-    th, td {
-      border: 1px solid #000;
-      padding: 6pt;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-      font-weight: bold;
-    }
-    strong { font-weight: bold; }
-    em { font-style: italic; }
-    hr { 
-      border: none; 
-      border-top: 1px solid #ccc; 
-      margin: 10pt 0; 
-    }
-    .spacer { height: 8pt; }
-    @media print { 
-      body { margin: 0; padding: 0; }
-      h1, h2, h3 { page-break-after: avoid; }
-      table { page-break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>
-${convertMarkdownToHTML(tailoredResume)}
-</body>
-</html>
-    `
-    
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const printWindow = window.open(url, '_blank')
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print()
-      }
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    printMarkdownAsPDF(tailoredResume, `Tailored Resume - ${jobId}`)
   }
 
   const downloadCoverLetter = () => {

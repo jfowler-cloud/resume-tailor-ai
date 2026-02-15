@@ -59,9 +59,18 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
     }
   }
 
+  const MAX_FILE_SIZE = 500 * 1024 // 500 KB per file
+
   const handleUpload = async () => {
     if (files.length === 0) {
       setError('Please select at least one file to upload')
+      return
+    }
+
+    const oversizedFiles = files.filter(f => f.size > MAX_FILE_SIZE)
+    if (oversizedFiles.length > 0) {
+      const names = oversizedFiles.map(f => f.name).join(', ')
+      setError(`File(s) too large (max 500 KB each): ${names}`)
       return
     }
 
@@ -133,6 +142,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
         <FormField
           label="Resume Files"
           description="Upload one or more resumes in .md or .txt format"
+          constraintText="Max 500 KB per file"
         >
           <FileUpload
             value={files}
