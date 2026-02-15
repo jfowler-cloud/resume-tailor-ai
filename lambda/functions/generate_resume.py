@@ -3,12 +3,17 @@ Generate Tailored Resume Lambda Function
 Creates customized resume optimized for specific job posting
 """
 import json
+import logging
 import os
 import boto3
 from datetime import datetime
 from botocore.config import Config
 from extract_json import extract_json_from_text
+from validation import validate_s3_key, validate_resume_content, safe_decode_s3_body
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 s3 = boto3.client('s3')
 bedrock = boto3.client(
@@ -36,7 +41,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         - changesApplied: List of modifications made
     """
     try:
-        print(f"Received event keys: {list(event.keys())}")
+        logger.info("Received event keys: %s", list(event.keys()))
         
         bucket_name = os.environ['BUCKET_NAME']
         job_id = event.get('jobId', 'unknown')
@@ -45,7 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if isinstance(resume_keys, str):
             resume_keys = [resume_keys]
         
-        print(f"Processing job: {job_id} for user: {user_id} with {len(resume_keys)} resume(s)")
+        logger.info("Processing job=%s for user=%s with %d resume(s)", job_id, user_id, len(resume_keys))
         
         parsed_job = event.get('parsedJob', {})
         analysis = event.get('analysis', {})
@@ -56,8 +61,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         resumes = []
         for key in resume_keys:
             if key:
-                response = s3.get_object(Bucket=bucket_name, Key=key)
-                content = response['Body'].read().decode('utf-8')
+                validated_key = validate_s3_key(key)
+                response = s3.get_object(Bucket=bucket_name, Key=validated_key)
+                content = safe_decode_s3_body(response['Body'].read(), source=validated_key)
+                content = validate_resume_content(content, source=validated_key)
                 resumes.append(content)
         
         primary_resume = resumes[0] if resumes else ''
@@ -106,7 +113,7 @@ Return a JSON object with:
 
 Return ONLY valid JSON."""
 
-        print(f"Starting resume generation with {len(resumes)} resume(s)...")
+        logger.info("Starting resume generation with %d resume(s)...", len(resumes))
         
         # Call Claude 4.5 Sonnet with streaming for resume generation
         response = bedrock.invoke_model_with_response_stream(
@@ -136,19 +143,19 @@ Return ONLY valid JSON."""
                         delta = chunk_obj['delta'].get('text', '')
                         result_content += delta
                         if len(result_content) % 1000 < 100:  # Log progress every ~1000 chars
-                            print(f"Generated {len(result_content)} characters...")
+                            logger.info("Generated %d characters...", len(result_content))
         
-        print(f"Resume generation complete. Total length: {len(result_content)} characters")
+        logger.info("Resume generation complete. Total length: %d characters", len(result_content))
         
         # Parse result
         result = extract_json_from_text(result_content)
         tailored_resume = result.get('tailoredResume', '')
         
-        print(f"Extracted tailored resume length: {len(tailored_resume)} characters")
+        logger.info("Extracted tailored resume length: %d characters", len(tailored_resume))
         
         if not tailored_resume:
-            print("WARNING: No tailored resume content extracted from response")
-            print(f"First 500 chars of response: {result_content[:500]}")
+            logger.warning("No tailored resume content extracted from response")
+            logger.warning("First 500 chars of response: %s", result_content[:500])
         
         # Save tailored resume to S3
         tailored_key = f"tailored/{job_id}/resume.md"
@@ -160,7 +167,7 @@ Return ONLY valid JSON."""
             ContentType='text/markdown'
         )
         
-        print(f"Saved tailored resume to S3: {tailored_key}")
+        logger.info("Saved tailored resume to S3: %s", tailored_key)
         
         # Also save to uploads folder for reuse (use captured user_id from start)
         timestamp = int(datetime.now().timestamp() * 1000)
@@ -173,7 +180,7 @@ Return ONLY valid JSON."""
             ContentType='text/markdown'
         )
         
-        print(f"Saved reusable copy to: {reusable_key}")
+        logger.info("Saved reusable copy to: %s", reusable_key)
         
         return {
             'statusCode': 200,
@@ -185,11 +192,17 @@ Return ONLY valid JSON."""
             'keywordOptimizations': result.get('keywordOptimizations', [])
         }
         
+    except ValueError as e:
+        logger.warning("Validation error generating resume: %s", str(e))
+        return {
+            'statusCode': 400,
+            'error': str(e),
+            'message': 'Invalid input'
+        }
     except Exception as e:
-        print(f"Error generating tailored resume: {str(e)}")
+        logger.error("Error generating tailored resume: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),
             'message': 'Failed to generate tailored resume'
         }
-# Updated Tue Feb 10 10:23:24 EST 2026

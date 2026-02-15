@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { fetchAuthSession } from 'aws-amplify/auth'
+import { getCredentials } from '../utils/auth'
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
@@ -53,12 +53,7 @@ export default function CriticalFeedback({
     setError(null)
 
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-
-      if (!credentials) {
-        throw new Error('No credentials available')
-      }
+      const credentials = await getCredentials()
 
       const lambdaClient = new LambdaClient({
         region: awsConfig.region,

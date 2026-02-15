@@ -10,7 +10,7 @@ def test_parse_job_success():
     """Test successful job parsing"""
     event = {
         'jobId': 'test-123',
-        'jobDescription': 'Senior Python Developer with 5+ years experience in AWS and Docker'
+        'jobDescription': 'Senior Python Developer with 5+ years experience in AWS and Docker. ' * 5  # Ensure >= 50 chars
     }
     
     with patch('parse_job.bedrock') as mock_bedrock:
@@ -36,23 +36,32 @@ def test_parse_job_success():
 def test_parse_job_missing_description():
     """Test handling of missing job description"""
     event = {'jobId': 'test-123'}
-    
+
     result = handler(event, None)
-    
-    assert result['statusCode'] == 500
+
+    assert result['statusCode'] == 400
     assert 'error' in result
+
+def test_parse_job_description_too_short():
+    """Test handling of too-short job description"""
+    event = {'jobId': 'test-123', 'jobDescription': 'Short'}
+
+    result = handler(event, None)
+
+    assert result['statusCode'] == 400
+    assert 'too short' in result['error']
 
 def test_parse_job_bedrock_error():
     """Test handling of Bedrock API error"""
     event = {
         'jobId': 'test-123',
-        'jobDescription': 'Test job'
+        'jobDescription': 'A' * 100  # Valid length
     }
-    
+
     with patch('parse_job.bedrock') as mock_bedrock:
         mock_bedrock.invoke_model.side_effect = Exception('API Error')
-        
+
         result = handler(event, None)
-        
+
         assert result['statusCode'] == 500
         assert 'error' in result

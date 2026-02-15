@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { getCredentials } from '../utils/auth'
 import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
@@ -25,6 +26,10 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
   const [selectedResumes, setSelectedResumes] = useState<{ label: string; value: string }[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const lastSubmitTime = useRef<number>(0)
+
+  const MIN_SUBMIT_INTERVAL_MS = 10000 // 10 seconds between submissions
+  const MAX_JOB_DESCRIPTION_LENGTH = 50000
 
   const resumeOptions = uploadedResumes.map(key => ({
     label: key.split('/').pop() || key,
@@ -37,8 +42,22 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
       return
     }
 
+    if (jobDescription.trim().length > MAX_JOB_DESCRIPTION_LENGTH) {
+      setError(`Job description is too long (max ${MAX_JOB_DESCRIPTION_LENGTH.toLocaleString()} characters)`)
+      return
+    }
+
     if (selectedResumes.length === 0) {
       setError('Please select at least one resume')
+      return
+    }
+
+    // Rate limit: prevent rapid submissions
+    const now = Date.now()
+    const elapsed = now - lastSubmitTime.current
+    if (elapsed < MIN_SUBMIT_INTERVAL_MS) {
+      const waitSec = Math.ceil((MIN_SUBMIT_INTERVAL_MS - elapsed) / 1000)
+      setError(`Please wait ${waitSec} seconds before submitting again`)
       return
     }
 
@@ -47,11 +66,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
 
     try {
       const session = await fetchAuthSession()
-      const credentials = session.credentials
-
-      if (!credentials) {
-        throw new Error('No credentials available')
-      }
+      const credentials = await getCredentials()
 
       const sfnClient = new SFNClient({
         region: awsConfig.region,
@@ -77,6 +92,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         })
       )
 
+      lastSubmitTime.current = Date.now()
       onJobSubmitted(jobId)
       setJobDescription('')
       setCompanyName('')
@@ -136,6 +152,7 @@ export default function JobAnalysis({ userId, uploadedResumes, onJobSubmitted }:
         <FormField
           label="Job Description"
           description="Paste the complete job posting including requirements and responsibilities"
+          constraintText={`${jobDescription.length.toLocaleString()} / ${MAX_JOB_DESCRIPTION_LENGTH.toLocaleString()} characters`}
         >
           <Textarea
             value={jobDescription}

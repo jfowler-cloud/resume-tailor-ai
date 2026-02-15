@@ -3,11 +3,15 @@ Save Results Lambda Function
 Stores all analysis results in DynamoDB
 """
 import json
+import logging
 import os
 import boto3
 from datetime import datetime
 from decimal import Decimal
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -37,6 +41,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         job_id = event.get('jobId', '')
         user_id = event.get('userId', 'anonymous')
+
+        if not job_id:
+            raise ValueError("jobId is required")
+        if user_id == 'anonymous':
+            logger.warning("No userId provided, using 'anonymous'")
         
         # Extract timestamp from jobId (format: job-1770764725413)
         timestamp = int(job_id.split('-')[1]) if '-' in job_id else int(datetime.utcnow().timestamp() * 1000)
@@ -99,7 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        print(f"Error saving results: {str(e)}")
+        logger.error("Error saving results: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

@@ -1,25 +1,25 @@
 # AWS SDK
-boto3>=1.35.0
+boto3==1.36.4
 
 # Data validation and parsing
-pydantic>=2.10.0
+pydantic==2.10.5
 
 # PDF parsing
-PyPDF2>=3.0.0
-pdfplumber>=0.11.0
+PyPDF2==3.0.1
+pdfplumber==0.11.4
 
 # Document parsing
-python-docx>=1.1.0
-markdown>=3.7.0
+python-docx==1.1.2
+markdown==3.7.0
 
 # Testing
-pytest>=8.3.0
-pytest-cov>=6.0.0
-pytest-mock>=3.14.0
-moto>=5.0.0  # AWS service mocking
+pytest==8.3.4
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+moto==5.0.27  # AWS service mocking
 
 # Type hints
-typing-extensions>=4.12.0
+typing-extensions==4.12.2
 
 # Utilities
-python-dateutil>=2.9.0
+python-dateutil==2.9.0.post0

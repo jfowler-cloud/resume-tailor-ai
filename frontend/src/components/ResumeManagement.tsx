@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchAuthSession } from 'aws-amplify/auth'
+import { getCredentials } from '../utils/auth'
 import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
@@ -35,9 +35,7 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
   const loadResumes = async () => {
     setLoading(true)
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -73,9 +71,7 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
 
   const downloadResume = async (item: ResumeItem) => {
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -108,9 +104,7 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
 
   const printResumePDF = async (item: ResumeItem) => {
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -236,9 +230,7 @@ ${convertMarkdownToHTML(content)}
     if (!confirm(`Delete ${item.name}?`)) return
 
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -262,9 +254,7 @@ ${convertMarkdownToHTML(content)}
     if (!confirm(`Delete ${selectedItems.length} selected resume(s)?`)) return
 
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -293,9 +283,7 @@ ${convertMarkdownToHTML(content)}
 
     setUploading(true)
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,

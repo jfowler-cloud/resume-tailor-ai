@@ -9,6 +9,12 @@ vi.mock('@aws-sdk/client-sfn', () => ({
   SFNClient: vi.fn(),
   StartExecutionCommand: vi.fn()
 }))
+vi.mock('../../utils/auth', () => ({
+  getCredentials: vi.fn().mockResolvedValue({
+    accessKeyId: 'test',
+    secretAccessKey: 'test'
+  })
+}))
 
 describe('JobAnalysis', () => {
   const mockOnJobSubmitted = vi.fn()

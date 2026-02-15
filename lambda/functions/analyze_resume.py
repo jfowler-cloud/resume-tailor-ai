@@ -3,10 +3,15 @@ Analyze Resume Fit Lambda Function
 Compares resume against job requirements and provides fit analysis
 """
 import json
+import logging
 import os
 import boto3
 from extract_json import extract_json_from_text
+from validation import validate_s3_key, validate_resume_content, safe_decode_s3_body
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 s3 = boto3.client('s3')
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
@@ -36,12 +41,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         parsed_job = event.get('parsedJob', {})
         
+        logger.info("Analyzing resume fit for job_id=%s with %d resume(s)", event.get('jobId'), len(resume_keys))
+
         # Download all resumes from S3
         resumes = []
         for key in resume_keys:
             if key:
-                response = s3.get_object(Bucket=bucket_name, Key=key)
-                content = response['Body'].read().decode('utf-8')
+                validated_key = validate_s3_key(key)
+                response = s3.get_object(Bucket=bucket_name, Key=validated_key)
+                content = safe_decode_s3_body(response['Body'].read(), source=validated_key)
+                content = validate_resume_content(content, source=validated_key)
                 resumes.append(content)
         
         resume_content = '\n\n---RESUME VERSION---\n\n'.join(resumes)
@@ -104,8 +113,15 @@ Be honest and thorough. Return ONLY valid JSON."""
             'summary': analysis.get('summary', '')
         }
         
+    except ValueError as e:
+        logger.warning("Validation error analyzing resume: %s", str(e))
+        return {
+            'statusCode': 400,
+            'error': str(e),
+            'message': 'Invalid input'
+        }
     except Exception as e:
-        print(f"Error analyzing resume: {str(e)}")
+        logger.error("Error analyzing resume: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

@@ -8,8 +8,14 @@ vi.mock('aws-amplify/auth')
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn(),
   PutObjectCommand: vi.fn(),
-  ListObjectsV2Command: vi.fn(),
-  GetObjectCommand: vi.fn()
+  ListObjectsV2Command: vi.fn()
+}))
+
+vi.mock('../../utils/auth', () => ({
+  getCredentials: vi.fn().mockResolvedValue({
+    accessKeyId: 'test',
+    secretAccessKey: 'test'
+  })
 }))
 
 describe('ResumeUpload', () => {

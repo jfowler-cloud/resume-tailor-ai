@@ -3,9 +3,13 @@ Notification Lambda Function
 Sends email notification when resume analysis is complete
 """
 import json
+import logging
 import os
 import boto3
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 ses = boto3.client('ses', region_name='us-east-1')
 
@@ -23,7 +27,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_email = event.get('userEmail', os.environ.get('USER_EMAIL'))
         
         if not user_email:
-            print("No email address provided, skipping notification")
+            logger.info("No email address provided, skipping notification")
             return {
                 'statusCode': 200,
                 'emailSent': False,
@@ -108,7 +112,7 @@ Resume Tailor Platform
         }
         
     except Exception as e:
-        print(f"Error sending notification: {str(e)}")
+        logger.error("Error sending notification: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),
