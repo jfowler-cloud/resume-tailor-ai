@@ -16,6 +16,7 @@ import StatusIndicator from '@cloudscape-design/components/status-indicator'
 import ColumnLayout from '@cloudscape-design/components/column-layout'
 import Badge from '@cloudscape-design/components/badge'
 import { awsConfig } from '../config/amplify'
+import CriticalFeedback from './CriticalFeedback'
 
 interface ResultsProps {
   userId: string
@@ -38,13 +39,27 @@ interface AnalysisData {
   actionableSteps?: string[]
 }
 
-export default function Results({ jobId }: ResultsProps) {
+interface CriticalReview {
+  overallRating?: number
+  strengths?: string[]
+  weaknesses?: string[]
+  actionableSteps?: string[]
+  competitiveAnalysis?: string
+  redFlags?: string[]
+  standoutElements?: string[]
+  summary?: string
+}
+
+export default function Results({ jobId, userId }: ResultsProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [executionStatus, setExecutionStatus] = useState<ExecutionStatus | null>(null)
   const [tailoredResume, setTailoredResume] = useState<string | null>(null)
   const [coverLetter, setCoverLetter] = useState<string | null>(null)
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
+  const [criticalReview, setCriticalReview] = useState<CriticalReview | null>(null)
+  const [jobDescription, setJobDescription] = useState<string>('')
+  const [parsedJob, setParsedJob] = useState<any>(null)
 
   useEffect(() => {
     if (jobId) {
@@ -131,6 +146,20 @@ export default function Results({ jobId }: ResultsProps) {
           recommendations: item.recommendations,
           actionableSteps: item.actionableSteps
         })
+        
+        // Set critical review data
+        if (item.criticalReview) {
+          setCriticalReview(item.criticalReview)
+        }
+        
+        // Set job description and parsed job for refinement
+        if (item.jobDescription) {
+          setJobDescription(item.jobDescription)
+        }
+        if (item.parsedJob) {
+          setParsedJob(item.parsedJob)
+        }
+        
         console.log('analysisData set:', {
           fitScore: item.fitScore,
           matchedSkills: item.matchedSkills
@@ -517,6 +546,17 @@ ${convertMarkdownToHTML(tailoredResume)}
               )}
             </SpaceBetween>
           </Container>
+        )}
+
+        {criticalReview && tailoredResume && jobDescription && parsedJob && (
+          <CriticalFeedback
+            jobId={jobId!}
+            userId={userId}
+            originalResume={tailoredResume}
+            criticalReview={criticalReview}
+            jobDescription={jobDescription}
+            parsedJob={parsedJob}
+          />
         )}
 
         {tailoredResume && (

@@ -335,7 +335,23 @@ export class ResumeTailorStack extends cdk.Stack {
       layers: [sharedLayer],
     });
 
-    // 8. Send Notification (optional)
+    // 8. Refine Resume (based on critical feedback)
+    const refineResumeFn = new lambda.Function(this, 'RefineResumeFunction', {
+      functionName: 'ResumeTailor-RefineResume',
+      runtime: lambda.Runtime.PYTHON_3_14,
+      handler: 'refine_resume.handler',
+      code: lambda.Code.fromAsset('lambda/functions'),
+      role: lambdaRole,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.generateResume,
+      },
+      timeout: cdk.Duration.minutes(13),
+      memorySize: 2048,
+      layers: [sharedLayer],
+    });
+
+    // 9. Send Notification (optional)
     const notifyFn = new lambda.Function(this, 'NotifyFunction', {
       functionName: 'ResumeTailor-Notify',
       runtime: lambda.Runtime.PYTHON_3_14,
@@ -523,6 +539,9 @@ export class ResumeTailorStack extends cdk.Stack {
     resultsTable.grantReadWriteData(authenticatedRole);
     stateMachine.grantStartExecution(authenticatedRole);
     stateMachine.grantRead(authenticatedRole);
+    
+    // Grant authenticated users permission to invoke refine resume function
+    refineResumeFn.grantInvoke(authenticatedRole);
 
     // Attach role to identity pool
     new cognito.CfnIdentityPoolRoleAttachment(this, 'IdentityPoolRoleAttachment', {
@@ -585,6 +604,12 @@ export class ResumeTailorStack extends cdk.Stack {
       value: hostingBucket.bucketName,
       description: 'S3 bucket for frontend hosting',
       exportName: 'ResumeTailorHostingBucket',
+    });
+
+    new cdk.CfnOutput(this, 'RefineResumeFunctionName', {
+      value: refineResumeFn.functionName,
+      description: 'Lambda function for refining resumes',
+      exportName: 'ResumeTailorRefineResumeFunction',
     });
   }
 }
