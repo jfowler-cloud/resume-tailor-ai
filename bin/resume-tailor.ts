@@ -20,4 +20,19 @@ new ResumeTailorStack(app, 'ResumeTailorStack', {
   },
 });
 
+// Feature stack for testing (separate from production)
+const stackName = app.node.tryGetContext('stackName');
+if (stackName === 'ResumeTailorFeatureStack') {
+  new ResumeTailorStack(app, 'ResumeTailorFeatureStack', {
+    env,
+    description: 'AI-Powered Resume Tailor Platform - Feature Testing Stack',
+    tags: {
+      Project: 'ResumeTailor',
+      Environment: 'feature',
+      ManagedBy: 'CDK',
+      Purpose: 'Testing',
+    },
+  });
+}
+
 app.synth();

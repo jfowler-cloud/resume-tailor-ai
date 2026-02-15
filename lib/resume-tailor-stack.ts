@@ -21,12 +21,16 @@ export class ResumeTailorStack extends cdk.Stack {
     const deploymentMode = this.node.tryGetContext('deploymentMode') || 'PREMIUM';
     const modelConfig = getModelConfig(deploymentMode);
     
-    console.log(`🚀 Deploying with ${deploymentMode} mode`);
+    // Determine if this is the feature stack
+    const isFeatureStack = id === 'ResumeTailorFeatureStack';
+    const suffix = isFeatureStack ? '-feature' : '';
+    
+    console.log(`🚀 Deploying ${id} with ${deploymentMode} mode`);
     console.log('Model configuration:', modelConfig);
 
     // Cognito User Pool for authentication
     const userPool = new cognito.UserPool(this, 'UserPool', {
-      userPoolName: 'ResumeTailorUsers',
+      userPoolName: `ResumeTailorUsers${suffix}`,
       signInAliases: {
         email: true,
       },
@@ -53,7 +57,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // User Pool Client
     const userPoolClient = userPool.addClient('WebClient', {
-      userPoolClientName: 'ResumeTailorWebClient',
+      userPoolClientName: `ResumeTailorWebClient${suffix}`,
       authFlows: {
         userPassword: true,
         userSrp: true,
@@ -63,7 +67,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // Identity Pool for AWS credentials
     const identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
-      identityPoolName: 'ResumeTailorIdentityPool',
+      identityPoolName: `ResumeTailorIdentityPool${suffix}`,
       allowUnauthenticatedIdentities: false,
       cognitoIdentityProviders: [
         {
@@ -75,7 +79,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // S3 Bucket for hosting frontend
     const hostingBucket = new s3.Bucket(this, 'HostingBucket', {
-      bucketName: `resume-tailor-hosting-${this.account}`,
+      bucketName: `resume-tailor-hosting${suffix}-${this.account}`,
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -116,7 +120,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // S3 Bucket for resume storage
     const resumeBucket = new s3.Bucket(this, 'ResumeBucket', {
-      bucketName: `resume-tailor-${this.account}`,
+      bucketName: `resume-tailor${suffix}-${this.account}`,
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       versioned: true,
@@ -155,7 +159,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // DynamoDB Table for job analysis results
     const resultsTable = new dynamodb.Table(this, 'ResultsTable', {
-      tableName: 'ResumeTailorResults',
+      tableName: `ResumeTailorResults${suffix}`,
       partitionKey: { name: 'jobId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -228,7 +232,7 @@ export class ResumeTailorStack extends cdk.Stack {
     
     // 1. Parse Job Description
     const parseJobFn = new lambda.Function(this, 'ParseJobFunction', {
-      functionName: 'ResumeTailor-ParseJob',
+      functionName: `ResumeTailor${suffix}-ParseJob`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'parse_job.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -244,7 +248,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 2. Analyze Resume Fit
     const analyzeResumeFn = new lambda.Function(this, 'AnalyzeResumeFunction', {
-      functionName: 'ResumeTailor-AnalyzeResume',
+      functionName: `ResumeTailor${suffix}-AnalyzeResume`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'analyze_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -260,7 +264,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 3. Generate Tailored Resume
     const generateResumeFn = new lambda.Function(this, 'GenerateResumeFunction', {
-      functionName: 'ResumeTailor-GenerateResume',
+      functionName: `ResumeTailor${suffix}-GenerateResume`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'generate_resume.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -276,7 +280,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 4. ATS Optimization
     const atsOptimizeFn = new lambda.Function(this, 'ATSOptimizeFunction', {
-      functionName: 'ResumeTailor-ATSOptimize',
+      functionName: `ResumeTailor${suffix}-ATSOptimize`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'ats_optimize.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -292,7 +296,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 5. Generate Cover Letter
     const coverLetterFn = new lambda.Function(this, 'CoverLetterFunction', {
-      functionName: 'ResumeTailor-CoverLetter',
+      functionName: `ResumeTailor${suffix}-CoverLetter`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'cover_letter.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -308,7 +312,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 6. Critical Review
     const criticalReviewFn = new lambda.Function(this, 'CriticalReviewFunction', {
-      functionName: 'ResumeTailor-CriticalReview',
+      functionName: `ResumeTailor${suffix}-CriticalReview`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'critical_review.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -324,7 +328,7 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // 7. Save Results
     const saveResultsFn = new lambda.Function(this, 'SaveResultsFunction', {
-      functionName: 'ResumeTailor-SaveResults',
+      functionName: `ResumeTailor${suffix}-SaveResults`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'save_results.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -335,9 +339,25 @@ export class ResumeTailorStack extends cdk.Stack {
       layers: [sharedLayer],
     });
 
-    // 8. Send Notification (optional)
+    // 8. Refine Resume (based on critical feedback)
+    const refineResumeFn = new lambda.Function(this, 'RefineResumeFunction', {
+      functionName: `ResumeTailor${suffix}-RefineResume`,
+      runtime: lambda.Runtime.PYTHON_3_14,
+      handler: 'refine_resume.handler',
+      code: lambda.Code.fromAsset('lambda/functions'),
+      role: lambdaRole,
+      environment: {
+        ...lambdaEnvironment,
+        MODEL_ID: modelConfig.generateResume,
+      },
+      timeout: cdk.Duration.minutes(13),
+      memorySize: 2048,
+      layers: [sharedLayer],
+    });
+
+    // 9. Send Notification (optional)
     const notifyFn = new lambda.Function(this, 'NotifyFunction', {
-      functionName: 'ResumeTailor-Notify',
+      functionName: `ResumeTailor${suffix}-Notify`,
       runtime: lambda.Runtime.PYTHON_3_14,
       handler: 'notify.handler',
       code: lambda.Code.fromAsset('lambda/functions'),
@@ -459,11 +479,11 @@ export class ResumeTailorStack extends cdk.Stack {
 
     // Create State Machine
     const stateMachine = new sfn.StateMachine(this, 'ResumeTailorWorkflow', {
-      stateMachineName: 'ResumeTailorWorkflow',
+      stateMachineName: `ResumeTailorWorkflow`,
       definitionBody: sfn.DefinitionBody.fromChainable(definition),
       logs: {
         destination: new logs.LogGroup(this, 'StateMachineLogGroup', {
-          logGroupName: '/aws/stepfunctions/ResumeTailorWorkflow',
+          logGroupName: `/aws/stepfunctions/ResumeTailorWorkflow${suffix}`,
           retention: logs.RetentionDays.ONE_WEEK,
           removalPolicy: cdk.RemovalPolicy.DESTROY,
         }),
@@ -523,6 +543,9 @@ export class ResumeTailorStack extends cdk.Stack {
     resultsTable.grantReadWriteData(authenticatedRole);
     stateMachine.grantStartExecution(authenticatedRole);
     stateMachine.grantRead(authenticatedRole);
+    
+    // Grant authenticated users permission to invoke refine resume function
+    refineResumeFn.grantInvoke(authenticatedRole);
 
     // Attach role to identity pool
     new cognito.CfnIdentityPoolRoleAttachment(this, 'IdentityPoolRoleAttachment', {
@@ -536,55 +559,61 @@ export class ResumeTailorStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'UserPoolId', {
       value: userPool.userPoolId,
       description: 'Cognito User Pool ID',
-      exportName: 'ResumeTailorUserPoolId',
+      exportName: `ResumeTailorUserPoolId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: userPoolClient.userPoolClientId,
       description: 'Cognito User Pool Client ID',
-      exportName: 'ResumeTailorUserPoolClientId',
+      exportName: `ResumeTailorUserPoolClientId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'IdentityPoolId', {
       value: identityPool.ref,
       description: 'Cognito Identity Pool ID',
-      exportName: 'ResumeTailorIdentityPoolId',
+      exportName: `ResumeTailorIdentityPoolId${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'BucketName', {
       value: resumeBucket.bucketName,
       description: 'S3 bucket for resume storage',
-      exportName: 'ResumeTailorBucketName',
+      exportName: `ResumeTailorBucketName${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'TableName', {
       value: resultsTable.tableName,
       description: 'DynamoDB table for results',
-      exportName: 'ResumeTailorTableName',
+      exportName: `ResumeTailorTableName${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'StateMachineArn', {
       value: stateMachine.stateMachineArn,
       description: 'Step Functions state machine ARN',
-      exportName: 'ResumeTailorStateMachineArn',
+      exportName: `ResumeTailorStateMachineArn${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'AppRoleArn', {
       value: appRole.roleArn,
       description: 'Application role ARN for frontend',
-      exportName: 'ResumeTailorAppRoleArn',
+      exportName: `ResumeTailorAppRoleArn${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'DistributionDomainName', {
       value: distribution.distributionDomainName,
       description: 'CloudFront distribution domain name',
-      exportName: 'ResumeTailorDistributionDomain',
+      exportName: `ResumeTailorDistributionDomain${suffix}`,
     });
 
     new cdk.CfnOutput(this, 'HostingBucketName', {
       value: hostingBucket.bucketName,
       description: 'S3 bucket for frontend hosting',
-      exportName: 'ResumeTailorHostingBucket',
+      exportName: `ResumeTailorHostingBucket${suffix}`,
+    });
+
+    new cdk.CfnOutput(this, 'RefineResumeFunctionName', {
+      value: refineResumeFn.functionName,
+      description: 'Lambda function for refining resumes',
+      exportName: `ResumeTailorRefineResumeFunction${suffix}`,
     });
   }
 }

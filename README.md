@@ -69,6 +69,19 @@ npx cdk deploy -c deploymentMode=OPTIMIZED  # Optimized: Mixed models (60% cost 
 
 See [MODEL_DEPLOYMENT.md](docs/MODEL_DEPLOYMENT.md) for detailed comparison.
 
+### Deploy Feature Branch
+
+```bash
+# Switch to feature branch
+git checkout feature/your-branch-name
+
+# Deploy with auto-approval (choose mode)
+npx cdk deploy --require-approval never                              # Premium mode
+npx cdk deploy -c deploymentMode=OPTIMIZED --require-approval never  # Optimized mode
+```
+
+The `--require-approval never` flag automatically approves security-sensitive changes (IAM permissions, etc.) without manual confirmation.
+
 ### Setup Frontend (1 minute)
 
 ```bash

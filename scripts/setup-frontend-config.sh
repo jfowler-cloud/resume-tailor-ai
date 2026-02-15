@@ -33,6 +33,7 @@ USER_POOL_CLIENT_ID=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="UserPoo
 IDENTITY_POOL_ID=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="IdentityPoolId") | .OutputValue')
 BUCKET_NAME=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="BucketName") | .OutputValue')
 STATE_MACHINE_ARN=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="StateMachineArn") | .OutputValue')
+REFINE_RESUME_FUNCTION=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="RefineResumeFunctionName") | .OutputValue')
 
 # Validate all values were found
 if [ -z "$USER_POOL_ID" ] || [ -z "$USER_POOL_CLIENT_ID" ] || [ -z "$IDENTITY_POOL_ID" ] || [ -z "$BUCKET_NAME" ] || [ -z "$STATE_MACHINE_ARN" ]; then
@@ -54,6 +55,7 @@ VITE_USER_POOL_CLIENT_ID=${USER_POOL_CLIENT_ID}
 VITE_IDENTITY_POOL_ID=${IDENTITY_POOL_ID}
 VITE_BUCKET_NAME=${BUCKET_NAME}
 VITE_STATE_MACHINE_ARN=${STATE_MACHINE_ARN}
+VITE_REFINE_RESUME_FUNCTION=${REFINE_RESUME_FUNCTION}
 EOF
 
 echo -e "${GREEN}✅ Frontend .env file created${NC}"
