@@ -177,6 +177,14 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 ![Results - Tailored Content](docs/images/results_3.png)
 *AI-optimized resume and personalized cover letter with download options*
 
+### Results - Critical Feedback
+![Results - Critical Feedback](docs/images/primary_critical_feedback.png)
+*Detailed resume critique with 0-10 rating, competitive analysis, red flags, and standout elements*
+
+### Results - Resume Refinement Comparison
+![Results - Resume Comparison](docs/images/critical_feedback_resume_comparison.png)
+*Side-by-side comparison of original vs AI-refined resume based on critical feedback*
+
 ---
 
 ## 🎯 Dashboard Features
