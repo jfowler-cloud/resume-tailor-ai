@@ -423,7 +423,14 @@ ${convertMarkdownToHTML(tailoredResume)}
               </Box>
               {executionStatus.status === 'RUNNING' && (
                 <Box>
-                  <Spinner /> Processing your resume... This may take 30-60 seconds.
+                  <SpaceBetween size="xs">
+                    <Box>
+                      <Spinner /> Processing your resume... This may take a few minutes.
+                    </Box>
+                    <Box color="text-status-info" fontSize="body-s">
+                      ⓘ Don't refresh the page. If the process fails, you'll see an error message automatically.
+                    </Box>
+                  </SpaceBetween>
                 </Box>
               )}
             </SpaceBetween>
