@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getCredentials } from '../utils/auth'
+import { printMarkdownAsPDF } from '../utils/markdownToHtml'
 import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
@@ -7,6 +8,7 @@ import SpaceBetween from '@cloudscape-design/components/space-between'
 import Table from '@cloudscape-design/components/table'
 import Button from '@cloudscape-design/components/button'
 import Box from '@cloudscape-design/components/box'
+import Alert from '@cloudscape-design/components/alert'
 import FileUpload from '@cloudscape-design/components/file-upload'
 import { awsConfig } from '../config/amplify'
 
@@ -27,6 +29,8 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
   const [selectedItems, setSelectedItems] = useState<ResumeItem[]>([])
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     loadResumes()
@@ -64,6 +68,7 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
       }
     } catch (err) {
       console.error('Failed to load resumes:', err)
+      setError('Failed to load resumes. Please try refreshing.')
     } finally {
       setLoading(false)
     }
@@ -99,6 +104,7 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
       window.URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Failed to download resume:', err)
+      setError('Failed to download resume. Please try again.')
     }
   }
 
@@ -121,101 +127,10 @@ export default function ResumeManagement({ userId }: ResumeManagementProps) {
       const content = await response.Body?.transformToString()
       if (!content) return
 
-      const convertMarkdownToHTML = (md: string) => {
-        return md.split('\n').map(line => {
-          if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`
-          if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`
-          if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`
-          if (line.trim() === '---') return '<hr>'
-          if (line.startsWith('- ')) {
-            const content = line.substring(2)
-            return `<li>${content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`
-          }
-          if (line.trim() === '') return '<br>'
-          let html = line
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          return `<p>${html}</p>`
-        }).join('\n')
-      }
-
-      const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${item.name}</title>
-  <style>
-    @page { margin: 0.75in; }
-    body { 
-      font-family: 'Calibri', 'Arial', sans-serif; 
-      line-height: 1.5; 
-      max-width: 8.5in; 
-      margin: 0 auto; 
-      padding: 0;
-      font-size: 11pt;
-      color: #000;
-    }
-    h1 { 
-      font-size: 18pt; 
-      margin: 0 0 8pt 0; 
-      font-weight: bold;
-      text-transform: uppercase;
-      border-bottom: 2px solid #000;
-      padding-bottom: 4pt;
-    }
-    h2 { 
-      font-size: 14pt; 
-      margin: 16pt 0 8pt 0; 
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    h3 { 
-      font-size: 12pt; 
-      margin: 12pt 0 6pt 0; 
-      font-weight: bold;
-    }
-    p { 
-      margin: 6pt 0; 
-      text-align: justify;
-    }
-    ul { 
-      margin: 6pt 0; 
-      padding-left: 20pt; 
-      list-style-type: disc;
-    }
-    li { 
-      margin: 4pt 0;
-      text-align: justify;
-    }
-    strong { font-weight: bold; }
-    em { font-style: italic; }
-    hr { 
-      border: none; 
-      border-top: 1px solid #ccc; 
-      margin: 12pt 0; 
-    }
-    @media print { 
-      body { margin: 0; padding: 0; }
-      h1, h2, h3 { page-break-after: avoid; }
-    }
-  </style>
-</head>
-<body>
-${convertMarkdownToHTML(content)}
-</body>
-</html>
-      `
-      
-      const blob = new Blob([html], { type: 'text/html' })
-      const url = URL.createObjectURL(blob)
-      const printWindow = window.open(url, '_blank')
-      if (printWindow) {
-        printWindow.onload = () => printWindow.print()
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      printMarkdownAsPDF(content, item.name)
     } catch (err) {
       console.error('Failed to print resume:', err)
+      setError('Failed to generate PDF. Please try again.')
     }
   }
 
@@ -245,8 +160,10 @@ ${convertMarkdownToHTML(content)}
       )
 
       await loadResumes()
+      setSuccess('Resume deleted successfully.')
     } catch (err) {
       console.error('Failed to delete resume:', err)
+      setError('Failed to delete resume. Please try again.')
     }
   }
 
@@ -274,8 +191,10 @@ ${convertMarkdownToHTML(content)}
       const deletedKeys = new Set(selectedItems.map(item => item.key))
       setResumes(prev => prev.filter(item => !deletedKeys.has(item.key)))
       setSelectedItems([])
+      setSuccess(`${selectedItems.length} resume(s) deleted successfully.`)
     } catch (err) {
       console.error('Failed to delete resumes:', err)
+      setError('Failed to delete selected resumes. Please try again.')
     }
   }
 
@@ -310,8 +229,10 @@ ${convertMarkdownToHTML(content)}
 
       setSelectedFiles(null)
       await loadResumes()
+      setSuccess('Resume(s) uploaded successfully.')
     } catch (err) {
       console.error('Failed to upload resumes:', err)
+      setError('Failed to upload resume(s). Please try again.')
     } finally {
       setUploading(false)
     }
@@ -319,6 +240,17 @@ ${convertMarkdownToHTML(content)}
 
   return (
     <SpaceBetween size="l">
+      {error && (
+        <Alert type="error" dismissible onDismiss={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert type="success" dismissible onDismiss={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
+
       <Container
         header={
           <Header variant="h3" description="Upload additional resumes to your library">
