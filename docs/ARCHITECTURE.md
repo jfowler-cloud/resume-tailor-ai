@@ -2,9 +2,13 @@
 
 ## Overview
 
-A serverless AI-powered resume tailoring platform using IAM role assumption for secure, direct AWS resource access from the React frontend.
+A serverless AI-powered resume tailoring platform using AWS Cognito for authentication and Step Functions for workflow orchestration. The React frontend communicates directly with AWS services using AWS Amplify and AWS SDK v3.
 
-**Key Design Decision:** Instead of API Gateway, the React app assumes an IAM role to directly invoke AWS services (Step Functions, S3, DynamoDB, Bedrock). This simplifies the architecture for personal use and reduces costs.
+**Key Design Decisions:**
+- **Cognito Authentication:** User pools for sign-up/sign-in, identity pools for AWS credentials
+- **Direct AWS Access:** React app uses AWS SDK to invoke Step Functions, S3, and DynamoDB
+- **Step Functions Orchestration:** Coordinates Lambda functions and AI processing
+- **Cost-Optimized:** Serverless architecture with pay-per-use pricing (~$1-5/month)
 
 ---
 
@@ -12,13 +16,18 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| **Frontend** | React | 19.x (latest) |
+| **Frontend** | React | 19.x |
+| **UI Library** | Cloudscape Design System | 3.x |
+| **Build Tool** | Vite | 7.x |
 | **Runtime** | Node.js | 24.x |
 | **Backend** | Python | 3.14 |
-| **Infrastructure** | AWS CDK | Latest |
+| **Infrastructure** | AWS CDK | 2.x |
 | **AI** | Claude (via Bedrock) | Opus 4.5 |
-| **Authentication** | AWS SSO | - |
-| **Authorization** | IAM Role Assumption | - |
+| **Authentication** | AWS Cognito | User Pools |
+| **Authorization** | IAM Roles | Identity Pools |
+| **Storage** | S3 + DynamoDB | - |
+| **Orchestration** | Step Functions | - |
+| **Hosting** | CloudFront + S3 | - |
 
 ---
 
@@ -26,33 +35,43 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         USER (Developer)                             │
+│                              USER                                    │
 │                                                                      │
-│  aws sso login --profile resume-tailor                              │
-│  (Temporary credentials via AWS SSO)                                 │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    REACT FRONTEND (Local Dev)                        │
-│                    or S3 + CloudFront (Deployed)                     │
-│                                                                      │
+│  • Sign up / Sign in via Cognito                                    │
 │  • Upload resumes                                                    │
 │  • Paste job description                                             │
 │  • View results                                                      │
-│                                                                      │
-│  AWS SDK for JavaScript v3                                           │
-│  └─> Assumes ResumeTailorAppRole                                    │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    IAM ROLE ASSUMPTION                               │
+│                    REACT FRONTEND                                    │
+│                    (CloudFront + S3)                                 │
 │                                                                      │
-│  ResumeTailorAppRole                                                 │
-│  • Trust policy allows your AWS account                              │
-│  • Permissions for: Bedrock, S3, DynamoDB, Step Functions, SES      │
-│  • Returns temporary credentials (valid for 1 hour)                  │
+│  • Cloudscape Design System UI                                       │
+│  • AWS Amplify (Authentication)                                      │
+│  • AWS SDK v3 (S3, Step Functions, DynamoDB)                        │
+│                                                                      │
+│  Components:                                                         │
+│  ├─ ResumeUpload.tsx (multi-file upload)                            │
+│  ├─ JobAnalysis.tsx (job description input)                         │
+│  ├─ ResumeManagement.tsx (resume library)                           │
+│  ├─ Results.tsx (fit analysis, tailored resume)                     │
+│  └─ CriticalFeedback.tsx (detailed critique)                        │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    AWS COGNITO                                       │
+│                                                                      │
+│  User Pool:                                                          │
+│  • Email/password authentication                                     │
+│  • User registration and management                                  │
+│                                                                      │
+│  Identity Pool:                                                      │
+│  • Exchanges Cognito tokens for AWS credentials                     │
+│  • Assumes ResumeTailorAppRole                                       │
+│  • Temporary credentials (1 hour validity)                          │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -62,21 +81,20 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
 │  │      S3      │  │  DynamoDB    │  │Step Functions│             │
 │  │              │  │              │  │              │             │
-│  │ • Resume     │  │ • Job data   │  │ • Workflow   │             │
-│  │   storage    │  │ • Results    │  │   execution  │             │
-│  │ • Generated  │  │ • Metadata   │  │              │             │
-│  │   resumes    │  │              │  │              │             │
+│  │ • Uploads/   │  │ • Job data   │  │ • Workflow   │             │
+│  │ • Tailored/  │  │ • Results    │  │   execution  │             │
+│  │ • Hosting/   │  │ • Metadata   │  │              │             │
 │  └──────────────┘  └──────────────┘  └──────────────┘             │
 │                                                                      │
 │  ┌──────────────┐  ┌──────────────┐                                │
 │  │   Bedrock    │  │     SES      │                                │
 │  │              │  │              │                                │
-│  │ • Claude Opus 4.5 │  │ • Email      │                                │
-│  │   Sonnet     │  │   notifications                               │
-│  │ • Claude Opus 4.5 │  │              │                                │
-│  │   Opus       │  │              │                                │
-│  │ • Claude Opus 4.5 │  │              │                                │
-│  │   Haiku      │  │              │                                │
+│  │ • Claude     │  │ • Email      │                                │
+│  │   Opus 4.5   │  │   notifications                               │
+│  │ • Claude     │  │              │                                │
+│  │   Sonnet 4.5 │  │              │                                │
+│  │ • Claude     │  │              │                                │
+│  │   Haiku 4.5  │  │              │                                │
 │  └──────────────┘  └──────────────┘                                │
 └─────────────────────────────────────────────────────────────────────┘
                               │
@@ -86,32 +104,30 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 │                                                                      │
 │  State Machine: ResumeTailorWorkflow                                 │
 │                                                                      │
-│  1. ParseResumes (Lambda)                                            │
-│     └─> Extract text from uploaded resumes                          │
+│  1. ParseJob (Lambda + Claude Opus 4.5)                             │
+│     └─> Extract requirements from job description                   │
 │                                                                      │
-│  2. AnalyzeJobRequirements (Lambda + Claude Opus 4.5)                     │
-│     └─> Extract skills, experience, keywords from job description   │
+│  2. AnalyzeResume (Lambda + Claude Opus 4.5)                        │
+│     └─> Evaluate resume fit against job                             │
+│     └─> Calculate fit score, matched/missing skills                 │
 │                                                                      │
-│  3. EvaluateFit (Lambda + Claude Opus 4.5)                                │
-│     └─> Score each resume against job requirements                  │
-│     └─> Parallel execution for multiple resumes                     │
+│  3. GenerateResume (Lambda + Claude Opus 4.5 - Streaming)           │
+│     └─> Create tailored resume optimized for job                    │
+│     └─> Save to S3 (tailored/ and uploads/ for reuse)              │
 │                                                                      │
-│  4. SelectBestResume (Lambda)                                        │
-│     └─> Choose resume with highest fit score                        │
+│  4. Parallel Processing:                                             │
+│     ├─> ATSOptimize (Lambda + Claude Opus 4.5)                      │
+│     │   └─> ATS compatibility check and score                       │
+│     ├─> CoverLetter (Lambda + Claude Opus 4.5)                      │
+│     │   └─> Generate personalized cover letter                      │
+│     └─> CriticalReview (Lambda + Claude Opus 4.5)                   │
+│         └─> Detailed critique with 0-10 rating                      │
 │                                                                      │
-│  5. TailorResume (Lambda + Claude Opus 4.5)                               │
-│     └─> Apply all 6 optimization approaches                         │
-│     └─> Generate ATS-optimized resume                               │
+│  5. SaveResults (Lambda)                                             │
+│     └─> Store all results in DynamoDB                               │
 │                                                                      │
-│  6. GenerateCoverLetter (Lambda + Claude Opus 4.5)                        │
-│     └─> Create personalized cover letter                            │
-│                                                                      │
-│  7. QualityCheck (Lambda + Claude Opus 4.5)                               │
-│     └─> Final validation and scoring                                │
-│                                                                      │
-│  8. StoreResults (Lambda)                                            │
-│     └─> Save to S3 and DynamoDB                                     │
-│     └─> Send email notification via SES                             │
+│  6. Notify (Lambda + SES)                                            │
+│     └─> Send email notification to user                             │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -119,434 +135,281 @@ A serverless AI-powered resume tailoring platform using IAM role assumption for 
 
 ## Authentication & Authorization Flow
 
-### Development (Local)
+### User Sign-Up/Sign-In
 
 ```
-1. Developer runs: aws sso login --profile resume-tailor
-   └─> Opens browser for AWS SSO authentication
-   └─> Stores temporary credentials in ~/.aws/cli/cache/
+1. User visits app (https://d3p4fy7i5mq8am.cloudfront.net)
+   └─> Hosted on CloudFront + S3
 
-2. React app (running locally) uses AWS SDK:
-   └─> Reads credentials from AWS_PROFILE=resume-tailor
-   └─> Calls STS AssumeRole for ResumeTailorAppRole
-   └─> Gets temporary credentials (valid 1 hour)
+2. User signs up or signs in:
+   └─> AWS Amplify UI components
+   └─> Cognito User Pool handles authentication
+   └─> Email/password credentials
 
-3. React app uses temporary credentials to:
+3. Successful authentication:
+   └─> Cognito returns ID token, access token, refresh token
+   └─> Amplify stores tokens securely
+
+4. Frontend exchanges Cognito token for AWS credentials:
+   └─> Cognito Identity Pool
+   └─> Assumes ResumeTailorAppRole
+   └─> Returns temporary AWS credentials (1 hour)
+
+5. Frontend uses credentials to access AWS services:
    └─> Upload resumes to S3
    └─> Start Step Functions execution
    └─> Query DynamoDB for results
-   └─> Invoke Bedrock (if needed for real-time features)
 ```
 
-### Production (Deployed)
+### IAM Role Permissions
 
-```
-1. React app deployed to S3 + CloudFront
-
-2. User authenticates via:
-   Option A: AWS Cognito (for public access)
-   Option B: AWS SSO (for personal use only)
-
-3. Frontend assumes ResumeTailorAppRole:
-   └─> Uses AWS SDK for JavaScript v3
-   └─> STS AssumeRole with web identity or user credentials
-   └─> Gets temporary credentials
-
-4. Same direct AWS service access as development
-```
+**ResumeTailorAppRole** (assumed by authenticated users):
+- `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject` on resume buckets
+- `states:StartExecution`, `states:DescribeExecution` on workflow
+- `dynamodb:GetItem`, `dynamodb:Query` on results table
+- `lambda:InvokeFunction` on RefineResume function
 
 ---
 
 ## Data Flow
 
 ### 1. Resume Upload
-
 ```
-User uploads resumes (PDF/MD)
-  └─> React app assumes role
-  └─> Uploads to S3: s3://resume-tailor-{account-id}/uploads/{user-id}/{resume-id}
-  └─> Stores metadata in DynamoDB: ResumeTailorResumes table
+User → Frontend → S3 (uploads/{userId}/{filename})
+                → DynamoDB (metadata)
 ```
 
-### 2. Job Analysis Trigger
-
+### 2. Job Analysis
 ```
-User pastes job description
-  └─> React app assumes role
-  └─> Starts Step Functions execution:
-      {
-        "jobDescription": "...",
-        "resumeIds": ["resume-1", "resume-2", ...],
-        "userId": "user-123"
-      }
-  └─> Returns execution ARN
+User → Frontend → Step Functions (StartExecution)
+                → Lambda (ParseJob)
+                → Bedrock (Claude Opus 4.5)
+                → Returns: job requirements
 ```
 
-### 3. Workflow Execution
-
+### 3. Resume Tailoring
 ```
-Step Functions orchestrates 8 Lambda functions:
-  └─> Each Lambda has ResumeTailorAppRole execution role
-  └─> Lambdas invoke Bedrock Claude Opus 4.5 APIs
-  └─> Results stored in DynamoDB and S3
+Step Functions → Lambda (AnalyzeResume)
+              → Bedrock (Claude Opus 4.5)
+              → Returns: fit score, skills analysis
+
+              → Lambda (GenerateResume)
+              → Bedrock (Claude Opus 4.5 - Streaming)
+              → S3 (tailored/{jobId}/resume.md)
+              → S3 (uploads/{userId}/tailored-{timestamp}.md)
+
+              → Parallel:
+                ├─> Lambda (ATSOptimize) → Bedrock
+                ├─> Lambda (CoverLetter) → Bedrock
+                └─> Lambda (CriticalReview) → Bedrock
+
+              → Lambda (SaveResults)
+              → DynamoDB (job data + results)
+
+              → Lambda (Notify)
+              → SES (email notification)
 ```
 
 ### 4. Results Retrieval
-
 ```
-React app polls for completion:
-  └─> Queries DynamoDB: ResumeTailorResults table
-  └─> Downloads generated resume from S3
-  └─> Displays in UI
+Frontend → DynamoDB (GetItem by jobId)
+        → S3 (GetObject for resume/cover letter)
+        → Display in Results component
 ```
 
 ---
 
-## IAM Role Structure
+## Deployment Modes
 
-### ResumeTailorAppRole (Central Application Role)
+### PREMIUM (Default)
+- **Model:** Claude Opus 4.5 for all functions
+- **Quality:** Best results
+- **Cost:** ~$4-5/month
+- **Use Case:** Maximum quality
 
-**Trust Policy:**
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::{account-id}:root"
-      },
-      "Action": "sts:AssumeRole"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
+### OPTIMIZED
+- **Models:** Mixed (Haiku 4.5, Sonnet 4.5, Opus 4.5)
+- **Quality:** Excellent results
+- **Cost:** ~$1-2/month (60-70% savings)
+- **Use Case:** Cost-conscious deployment
+
+Deploy with:
+```bash
+npx cdk deploy                              # Premium
+npx cdk deploy -c deploymentMode=OPTIMIZED  # Optimized
 ```
-
-**Permissions:**
-- Bedrock: InvokeModel, InvokeModelWithResponseStream
-- S3: GetObject, PutObject, DeleteObject, ListBucket
-- DynamoDB: GetItem, PutItem, UpdateItem, Query, Scan
-- Step Functions: StartExecution, DescribeExecution, GetExecutionHistory
-- SES: SendEmail, SendRawEmail
-- CloudWatch Logs: CreateLogGroup, CreateLogStream, PutLogEvents
-
----
-
-## AWS Resources
-
-### S3 Buckets
-
-**resume-tailor-{account-id}**
-- `/uploads/{user-id}/{resume-id}` - Original resumes
-- `/generated/{job-id}/{resume-id}` - Tailored resumes
-- `/generated/{job-id}/cover-letter.md` - Cover letters
-
-**Lifecycle:**
-- Uploads: 30 days retention
-- Generated: 90 days retention
-- Versioning: Enabled
-
-### DynamoDB Tables
-
-**ResumeTailorResumes**
-- PK: `userId`
-- SK: `resumeId`
-- Attributes: fileName, uploadDate, s3Key, metadata
-
-**ResumeTailorJobs**
-- PK: `userId`
-- SK: `jobId`
-- Attributes: jobDescription, status, createdAt, executionArn
-- GSI: StatusIndex (status, createdAt)
-
-**ResumeTailorResults**
-- PK: `jobId`
-- SK: `resultType` (fit-analysis | tailored-resume | cover-letter)
-- Attributes: content, score, s3Key, generatedAt
-
-### Step Functions State Machine
-
-**ResumeTailorWorkflow**
-- Type: Standard (for long-running workflows)
-- Timeout: 15 minutes
-- Error handling: Retry with exponential backoff
-- Logging: CloudWatch Logs (ALL events)
-
-### Lambda Functions
-
-All functions use:
-- Runtime: Python 3.14
-- Architecture: arm64 (Graviton2 - cheaper)
-- Memory: 512 MB (adjustable per function)
-- Timeout: 5 minutes (except parse-resumes: 2 minutes)
-- Execution Role: ResumeTailorAppRole
 
 ---
 
 ## Security
 
+### Authentication
+- ✅ Cognito User Pools for user management
+- ✅ Email/password authentication
+- ✅ Secure token storage via Amplify
+
+### Authorization
+- ✅ IAM roles with least-privilege permissions
+- ✅ Cognito Identity Pools for credential vending
+- ✅ User-scoped S3 access (uploads/{userId}/)
+
 ### Data Protection
+- ✅ S3 encryption at rest (AES-256)
+- ✅ HTTPS/TLS for data in transit
+- ✅ CloudFront with HTTPS only
+- ✅ DynamoDB encryption at rest
 
-**At Rest:**
-- S3: SSE-S3 (AES-256)
-- DynamoDB: AWS-managed encryption
-- Secrets: AWS Secrets Manager (if needed)
-
-**In Transit:**
-- All AWS API calls: TLS 1.2+
-- Frontend: HTTPS only (CloudFront)
-
-### Access Control
-
-**Principle of Least Privilege:**
-- ResumeTailorAppRole: Scoped to specific resources
-- Resource policies: Restrict access to role ARN
-- S3 bucket policies: Deny public access
-
-**Audit:**
-- CloudTrail: All API calls logged
-- CloudWatch Logs: Lambda execution logs
-- S3 access logs: Enabled
-
----
-
-## Cost Optimization
-
-### Serverless Architecture
-
-**No idle costs:**
-- Lambda: Pay per invocation
-- Step Functions: Pay per state transition
-- DynamoDB: On-demand pricing
-- S3: Pay per GB stored
-
-### Resource Optimization
-
-**Lambda:**
-- arm64 architecture (20% cheaper)
-- Right-sized memory allocation
-- Provisioned concurrency: None (not needed)
-
-**Bedrock:**
-- Claude Haiku for simple tasks ($0.25/1M tokens)
-- Claude Sonnet for complex analysis ($3/1M tokens)
-- Claude Opus for critical tailoring ($15/1M tokens)
-
-**S3:**
-- Intelligent-Tiering storage class
-- Lifecycle policies for automatic deletion
-- Compression for large files
-
-### Expected Monthly Cost
-
-| Service | Usage | Cost |
-|---------|-------|------|
-| Lambda | ~100 invocations | Free tier |
-| Step Functions | ~20 executions | $0.05 |
-| Bedrock | ~50K tokens | $0.75 |
-| DynamoDB | On-demand | $0.25 |
-| S3 | ~1GB | $0.02 |
-| SES | ~20 emails | $0.002 |
-| **Total** | | **~$1-2/month** |
+### Secrets Management
+- ✅ No hardcoded credentials
+- ✅ IAM roles for Lambda execution
+- ✅ Environment variables for configuration
+- ✅ Git hooks prevent committing sensitive data
 
 ---
 
 ## Scalability
 
-### Current Design (Personal Use)
+### Auto-Scaling Components
+- **Lambda:** Automatic scaling (up to 1000 concurrent executions)
+- **S3:** Unlimited storage, automatic scaling
+- **DynamoDB:** On-demand capacity mode
+- **CloudFront:** Global CDN with automatic scaling
+- **Step Functions:** Handles concurrent workflows
 
-- **Users:** 1 (you)
-- **Concurrent executions:** 1-2
-- **Resumes per job:** 5-10
-- **Jobs per month:** 20-50
+### Performance
+- **Resume Upload:** < 1 second
+- **Job Analysis:** 30-60 seconds (AI processing)
+- **Results Retrieval:** < 500ms (DynamoDB + S3)
+- **Frontend Load:** < 2 seconds (CloudFront cache)
 
-### Future Scaling (If Needed)
+---
 
-**To support multiple users:**
-1. Add Cognito for authentication
-2. Implement user isolation in S3/DynamoDB
-3. Add API Gateway for rate limiting
-4. Enable DynamoDB auto-scaling
-5. Add CloudFront caching
+## Cost Optimization
 
-**Current architecture supports:**
-- 100+ concurrent users
-- 1000+ jobs per day
-- No code changes needed
+### Monthly Cost Breakdown (~$1-5/month)
+
+| Service | Usage | Cost |
+|---------|-------|------|
+| Cognito | 1 user | $0 (free tier) |
+| Lambda | ~100 invocations | $0 (free tier) |
+| Step Functions | ~20 executions | $0.05 |
+| Bedrock | ~50K tokens | $1.50-4.00 |
+| DynamoDB | On-demand | $0.25 |
+| S3 | ~1GB storage | $0.02 |
+| CloudFront | ~1K requests | $0.01 |
+| SES | ~20 emails | $0.002 |
+
+### Cost Reduction Strategies
+1. Use OPTIMIZED deployment mode (60-70% savings)
+2. Delete old tailored resumes from S3
+3. Use DynamoDB TTL for old job data
+4. CloudFront caching reduces S3 requests
 
 ---
 
 ## Monitoring & Observability
 
-### CloudWatch Dashboards
+### CloudWatch Logs
+- Lambda function logs (all executions)
+- Step Functions execution history
+- API access logs
 
-**Metrics to track:**
-- Step Functions execution success rate
-- Lambda error rate and duration
-- Bedrock API latency
+### CloudWatch Metrics
+- Lambda invocation count, duration, errors
+- Step Functions execution count, success/failure
+- S3 request metrics
+- DynamoDB read/write capacity
+
+### Alarms (Optional)
+- Lambda error rate > 5%
+- Step Functions failed executions
 - DynamoDB throttling
-- S3 request rate
-
-### Alarms
-
-**Critical:**
-- Step Functions execution failures > 10%
-- Lambda errors > 5%
-- DynamoDB throttling > 0
-
-**Warning:**
-- Bedrock API latency > 5s
-- S3 4xx errors > 1%
-
-### Logging
-
-**CloudWatch Log Groups:**
-- `/aws/lambda/ResumeTailor-*` - Lambda logs
-- `/aws/states/ResumeTailorWorkflow` - Step Functions logs
-- `/aws/bedrock/model-invocations` - Bedrock logs
-
-**Log retention:** 7 days (dev), 30 days (prod)
 
 ---
 
-## Disaster Recovery
+## Testing
 
-### Backup Strategy
+### Backend Tests (33 tests, 54% coverage)
+- `test_parse_job.py` - Job parsing (100% coverage)
+- `test_validation.py` - Input validation (95% coverage)
+- `test_save_results.py` - DynamoDB operations (93% coverage)
+- `test_analyze_resume.py` - Resume analysis (92% coverage)
+- `test_generate_resume.py` - Resume generation (88% coverage)
 
-**S3:**
-- Versioning enabled
-- Cross-region replication (optional)
-- Lifecycle policies prevent accidental deletion
+### Frontend Tests (10 tests, 22% coverage)
+- `ResumeUpload.test.tsx` - Upload component
+- `JobAnalysis.test.tsx` - Analysis form
+- `ResumeManagement.test.tsx` - Resume library
 
-**DynamoDB:**
-- Point-in-time recovery enabled
-- On-demand backups before major changes
-- Export to S3 for long-term storage
+---
 
-**Infrastructure:**
-- CDK code in Git (infrastructure as code)
-- Can redeploy entire stack in minutes
+## Future Enhancements
 
-### Recovery Procedures
+### Planned Features
+1. Native PDF generation (server-side)
+2. Resume version comparison
+3. Job application tracking
+4. Multi-language support
+5. Resume templates
 
-**Data loss:**
-1. Restore DynamoDB from point-in-time recovery
-2. Restore S3 objects from versioning
-3. Re-run failed Step Functions executions
-
-**Service outage:**
-1. Check AWS Service Health Dashboard
-2. Retry failed operations
-3. Switch to different region (if configured)
+### Infrastructure Improvements
+1. CI/CD pipeline (GitHub Actions)
+2. Integration tests
+3. E2E tests with Playwright
+4. Performance monitoring
+5. Cost alerts
 
 ---
 
 ## Development Workflow
 
 ### Local Development
-
 ```bash
-# 1. Login to AWS
-aws sso login --profile resume-tailor
+# Backend
+cd lambda
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-test.txt
+PYTHONPATH=functions pytest tests/ -v
 
-# 2. Start frontend dev server
+# Frontend
 cd frontend
-npm run dev
-
-# 3. Frontend uses local AWS credentials
-# AWS SDK automatically uses AWS_PROFILE=resume-tailor
-
-# 4. Test against real AWS resources
-# (No local mocking needed)
+npm install
+npm run dev  # http://localhost:3000
+npm test     # Run tests
 ```
-
-### Testing
-
-**Unit Tests:**
-- Lambda functions: pytest
-- React components: Vitest
-
-**Integration Tests:**
-- Deploy to dev environment
-- Run end-to-end tests against real AWS
-
-**Manual Testing:**
-- Upload test resumes
-- Trigger workflow
-- Verify results
 
 ### Deployment
-
 ```bash
-# 1. Synthesize CloudFormation
-cdk synth --profile resume-tailor
+# Deploy backend
+npx cdk deploy
 
-# 2. Deploy to AWS
-cdk deploy --profile resume-tailor
+# Configure frontend
+./scripts/setup-frontend-config.sh
 
-# 3. Verify deployment
-aws cloudformation describe-stacks \
-  --stack-name ResumeTailorStack \
-  --profile resume-tailor
+# Deploy frontend
+./deploy-frontend.sh
 ```
 
 ---
 
-## Future Enhancements
+## Architecture Principles
 
-### Phase 2 Features
-
-- [ ] A/B testing different resume versions
-- [ ] Interview question generator
-- [ ] Salary range estimator
-- [ ] LinkedIn profile optimizer
-- [ ] Application tracking dashboard
-
-### Phase 3 Features
-
-- [ ] Chrome extension for one-click tailoring
-- [ ] Integration with job boards
-- [ ] Resume version control
-- [ ] Collaborative editing
-- [ ] Analytics dashboard
+1. **Serverless-First:** No servers to manage, automatic scaling
+2. **Cost-Optimized:** Pay only for what you use
+3. **Security-First:** Cognito auth, IAM roles, encryption
+4. **AI-Powered:** Claude Opus 4.5 for intelligent processing
+5. **User-Friendly:** Cloudscape Design System for AWS-native UX
+6. **Production-Ready:** Comprehensive testing, error handling
+7. **Maintainable:** Clean code, documentation, type safety
 
 ---
 
-## Comparison: Role Assumption vs API Gateway
+## References
 
-### Why Role Assumption?
-
-**Advantages:**
-✅ Simpler architecture (fewer components)
-✅ Lower cost (no API Gateway charges)
-✅ Direct AWS SDK usage (no REST API layer)
-✅ Better for personal projects
-✅ Easier local development
-
-**Disadvantages:**
-❌ Requires AWS credentials
-❌ Not suitable for public access
-❌ No built-in rate limiting
-❌ No API versioning
-
-### When to Use API Gateway?
-
-Use API Gateway when:
-- Building a public-facing application
-- Need rate limiting and throttling
-- Want API versioning and stages
-- Require custom authorizers
-- Need request/response transformation
-
-For this personal project, role assumption is the better choice.
-
----
-
-This architecture provides a secure, cost-effective, and scalable solution for AI-powered resume tailoring using modern AWS serverless technologies.
+- [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/)
+- [AWS Cognito Documentation](https://docs.aws.amazon.com/cognito/)
+- [AWS Step Functions Documentation](https://docs.aws.amazon.com/step-functions/)
+- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
+- [Cloudscape Design System](https://cloudscape.design/)
+- [AWS Amplify Documentation](https://docs.amplify.aws/)
