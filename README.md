@@ -24,6 +24,8 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 - 📚 **Resume Library** - View, download, and manage all your resumes in one place
 - 🤖 **AI Analysis** - Claude Opus 4.5 evaluates fit and identifies gaps
 - 📊 **Detailed Critique** - Fit scores, matched/missing skills, strengths, weaknesses
+- 🎯 **Critical Feedback** - In-depth resume review with ratings, red flags, and competitive analysis
+- 🔄 **AI Resume Refinement** - One-click resume improvements based on critical feedback
 - ✍️ **Automated Tailoring** - AI rewrites resume to emphasize relevant experience
 - 🔄 **Reusable Tailored Resumes** - Automatically saved for future applications
 - 📈 **ATS Optimization** - Ensures resume passes Applicant Tracking Systems
@@ -198,6 +200,13 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 - **Strengths** - What makes you a strong candidate
 - **Weaknesses** - Areas for improvement
 - **Recommendations** - Actionable advice
+- **Critical Feedback** - Detailed resume critique with:
+  - Overall rating (0-10 scale)
+  - Strengths and weaknesses analysis
+  - Actionable improvement steps
+  - Competitive analysis
+  - Red flags and standout elements
+  - One-click AI refinement based on feedback
 - **Tailored Resume** - Optimized for the job
 - **Cover Letter** - Personalized introduction
 - **Download Options** - Save as Markdown or text
@@ -317,11 +326,20 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - CI/CD pipeline automation
 - Integration and E2E tests
 - Multi-language support
-- **TODO: Display critical review feedback in Results UI** (currently generated but not shown)
 
 ---
 
 ## 🚀 Recent Updates
+
+### v2.1.0 - Critical Feedback & Resume Refinement (Feb 2026)
+- ✨ Added Critical Feedback component with detailed resume critique
+- ✨ AI-powered resume refinement based on critical feedback
+- ✨ Overall rating (0-10 scale) with competitive analysis
+- ✨ Red flags and standout elements identification
+- ✨ One-click resume improvement feature
+- 🐛 Fixed DynamoDB float/Decimal conversion issue
+- 🐛 Fixed parallel results extraction for critical review data
+- 📝 Added feature branch deployment guide to README
 
 ### v2.0.0 - Enhanced Resume Management (Feb 2026)
 - ✨ Added Resume Library component
