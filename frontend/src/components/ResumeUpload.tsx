@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { fetchAuthSession } from 'aws-amplify/auth'
-import { S3Client, PutObjectCommand, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getCredentials } from '../utils/auth'
+import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import Container from '@cloudscape-design/components/container'
 import Header from '@cloudscape-design/components/header'
 import SpaceBetween from '@cloudscape-design/components/space-between'
@@ -15,14 +15,6 @@ interface ResumeUploadProps {
   onResumeUploaded: (resumeKey: string) => void
 }
 
-async function hashContent(content: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(content)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
 export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadProps) {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
@@ -35,9 +27,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
 
   const loadExistingResumes = async () => {
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-      if (!credentials) return
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,
@@ -52,29 +42,15 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
       )
 
       if (response.Contents) {
-        const contentHashes = new Map<string, string>()
-        
+        // Use S3 ETags for deduplication instead of downloading every file
+        const seenETags = new Set<string>()
+
         for (const obj of response.Contents) {
           if (!obj.Key) continue
-          
-          try {
-            const getResponse = await s3Client.send(
-              new GetObjectCommand({
-                Bucket: awsConfig.bucketName,
-                Key: obj.Key
-              })
-            )
-            const content = await getResponse.Body?.transformToString()
-            if (!content) continue
-            
-            const hash = await hashContent(content)
-            
-            if (!contentHashes.has(hash)) {
-              contentHashes.set(hash, obj.Key)
-              onResumeUploaded(obj.Key)
-            }
-          } catch (err) {
-            console.error(`Failed to load ${obj.Key}:`, err)
+          const etag = obj.ETag || ''
+          if (!seenETags.has(etag)) {
+            seenETags.add(etag)
+            onResumeUploaded(obj.Key)
           }
         }
       }
@@ -94,12 +70,7 @@ export default function ResumeUpload({ userId, onResumeUploaded }: ResumeUploadP
     setSuccess(null)
 
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-
-      if (!credentials) {
-        throw new Error('No credentials available')
-      }
+      const credentials = await getCredentials()
 
       const s3Client = new S3Client({
         region: awsConfig.region,

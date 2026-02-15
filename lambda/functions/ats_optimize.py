@@ -3,10 +3,14 @@ ATS Optimization Lambda Function
 Ensures resume is 100% compatible with Applicant Tracking Systems
 """
 import json
+import logging
 import os
 import boto3
 from extract_json import extract_json_from_text
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
@@ -89,7 +93,7 @@ Return ONLY valid JSON."""
         }
         
     except Exception as e:
-        print(f"Error optimizing for ATS: {str(e)}")
+        logger.error("Error optimizing for ATS: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

@@ -3,21 +3,26 @@ Parse Job Description Lambda Function
 Extracts key requirements, skills, and qualifications from job posting
 """
 import json
+import logging
 import os
 import boto3
 from extract_json import extract_json_from_text
+from validation import validate_job_description
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Parse job description and extract structured information
-    
+
     Input:
         - jobDescription: Raw job posting text
         - jobId: Unique identifier for this job
-        
+
     Output:
         - parsedJob: Structured job requirements
         - requiredSkills: List of required skills
@@ -25,11 +30,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         - keyResponsibilities: List of key responsibilities
     """
     try:
-        job_description = event.get('jobDescription', '')
+        job_description = validate_job_description(event.get('jobDescription', ''))
         job_id = event.get('jobId', '')
-        
-        if not job_description:
-            raise ValueError("Job description is required")
+
+        logger.info("Parsing job description for job_id=%s, length=%d", job_id, len(job_description))
         
         # Prepare prompt for Claude
         prompt = f"""Analyze this job description and extract structured information.
@@ -82,8 +86,16 @@ Return ONLY valid JSON, no other text."""
             'keywords': parsed_job.get('keywords', [])
         }
         
+    except ValueError as e:
+        logger.warning("Validation error parsing job: %s", str(e))
+        return {
+            'statusCode': 400,
+            'error': str(e),
+            'jobId': event.get('jobId', ''),
+            'message': 'Invalid input'
+        }
     except Exception as e:
-        print(f"Error parsing job description: {str(e)}")
+        logger.error("Error parsing job description: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

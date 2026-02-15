@@ -183,7 +183,7 @@ export class ResumeTailorStack extends cdk.Stack {
       ],
     });
 
-    // Grant Bedrock access
+    // Grant Bedrock access — scoped to specific model families
     lambdaRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
@@ -192,19 +192,22 @@ export class ResumeTailorStack extends cdk.Stack {
           'bedrock:InvokeModelWithResponseStream',
         ],
         resources: [
-          `arn:aws:bedrock:*::foundation-model/anthropic.claude-*`,
-          `arn:aws:bedrock:*:${this.account}:inference-profile/*`,
+          `arn:aws:bedrock:*::foundation-model/anthropic.claude-opus-4-5-*`,
+          `arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-5-*`,
+          `arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*`,
+          `arn:aws:bedrock:*:${this.account}:inference-profile/us.anthropic.claude-opus-4-5-*`,
+          `arn:aws:bedrock:*:${this.account}:inference-profile/us.anthropic.claude-sonnet-4-5-*`,
+          `arn:aws:bedrock:*:${this.account}:inference-profile/us.anthropic.claude-haiku-4-5-*`,
         ],
       })
     );
 
-    // Grant AWS Marketplace permissions for Bedrock models
+    // Grant AWS Marketplace permissions for Bedrock models — scoped to view only
     lambdaRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
           'aws-marketplace:ViewSubscriptions',
-          'aws-marketplace:Subscribe',
         ],
         resources: ['*'],
       })
@@ -377,12 +380,21 @@ export class ResumeTailorStack extends cdk.Stack {
       })
     );
 
+    // Retry configuration for transient Bedrock failures
+    const bedrockRetryProps = {
+      errors: ['States.TaskFailed', 'States.Timeout'],
+      interval: cdk.Duration.seconds(5),
+      maxAttempts: 2,
+      backoffRate: 2.0,
+    };
+
     // Step Functions State Machine
     const parseJobTask = new tasks.LambdaInvoke(this, 'ParseJobDescription', {
       lambdaFunction: parseJobFn,
       resultPath: '$.parsedJob',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    parseJobTask.addRetry(bedrockRetryProps);
 
     const analyzeResumeTask = new tasks.LambdaInvoke(this, 'AnalyzeResumeFit', {
       lambdaFunction: analyzeResumeFn,
@@ -396,6 +408,7 @@ export class ResumeTailorStack extends cdk.Stack {
       resultPath: '$.analysis',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    analyzeResumeTask.addRetry(bedrockRetryProps);
 
     const generateResumeTask = new tasks.LambdaInvoke(this, 'GenerateTailoredResume', {
       lambdaFunction: generateResumeFn,
@@ -409,6 +422,7 @@ export class ResumeTailorStack extends cdk.Stack {
       resultPath: '$.tailoredResume',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    generateResumeTask.addRetry(bedrockRetryProps);
 
     const atsOptimizeTask = new tasks.LambdaInvoke(this, 'ATSOptimization', {
       lambdaFunction: atsOptimizeFn,
@@ -419,6 +433,7 @@ export class ResumeTailorStack extends cdk.Stack {
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    atsOptimizeTask.addRetry(bedrockRetryProps);
 
     const coverLetterTask = new tasks.LambdaInvoke(this, 'GenerateCoverLetter', {
       lambdaFunction: coverLetterFn,
@@ -432,6 +447,7 @@ export class ResumeTailorStack extends cdk.Stack {
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    coverLetterTask.addRetry(bedrockRetryProps);
 
     const criticalReviewTask = new tasks.LambdaInvoke(this, 'CriticalReview', {
       lambdaFunction: criticalReviewFn,
@@ -441,6 +457,7 @@ export class ResumeTailorStack extends cdk.Stack {
       outputPath: '$.Payload',
       taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(13)),
     });
+    criticalReviewTask.addRetry(bedrockRetryProps);
 
     const saveResultsTask = new tasks.LambdaInvoke(this, 'SaveResults', {
       lambdaFunction: saveResultsFn,
@@ -454,6 +471,12 @@ export class ResumeTailorStack extends cdk.Stack {
         'parallelResults.$': '$.parallelResults',
       }),
       outputPath: '$.Payload',
+    });
+    saveResultsTask.addRetry({
+      errors: ['States.TaskFailed'],
+      interval: cdk.Duration.seconds(2),
+      maxAttempts: 2,
+      backoffRate: 2.0,
     });
 
     const notifyTask = new tasks.LambdaInvoke(this, 'SendNotification', {

@@ -11,6 +11,12 @@ vi.mock('@aws-sdk/client-s3', () => ({
   GetObjectCommand: vi.fn(),
   DeleteObjectCommand: vi.fn()
 }))
+vi.mock('../../utils/auth', () => ({
+  getCredentials: vi.fn().mockResolvedValue({
+    accessKeyId: 'test',
+    secretAccessKey: 'test'
+  })
+}))
 
 describe('ResumeManagement', () => {
   const mockCredentials = { accessKeyId: 'test', secretAccessKey: 'test' }

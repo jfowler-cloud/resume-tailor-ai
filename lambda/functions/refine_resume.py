@@ -3,9 +3,13 @@ Refine Resume Lambda Function
 Regenerates resume incorporating critical feedback
 """
 import json
+import logging
 import os
 import boto3
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
@@ -96,7 +100,7 @@ Generate an improved resume in Markdown format that addresses the feedback while
         }
         
     except Exception as e:
-        print(f"Error refining resume: {str(e)}")
+        logger.error("Error refining resume: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

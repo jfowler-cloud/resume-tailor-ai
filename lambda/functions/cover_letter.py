@@ -3,10 +3,14 @@ Cover Letter Generation Lambda Function
 Creates personalized cover letter that tells candidate's story
 """
 import json
+import logging
 import os
 import boto3
 from extract_json import extract_json_from_text
 from typing import Dict, Any
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 s3 = boto3.client('s3')
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
@@ -112,7 +116,7 @@ Return ONLY valid JSON."""
         }
         
     except Exception as e:
-        print(f"Error generating cover letter: {str(e)}")
+        logger.error("Error generating cover letter: %s", str(e), exc_info=True)
         return {
             'statusCode': 500,
             'error': str(e),

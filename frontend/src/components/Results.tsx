@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { fetchAuthSession } from 'aws-amplify/auth'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { getCredentials } from '../utils/auth'
 import { SFNClient, DescribeExecutionCommand } from '@aws-sdk/client-sfn'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb'
@@ -60,12 +60,28 @@ export default function Results({ jobId, userId }: ResultsProps) {
   const [criticalReview, setCriticalReview] = useState<CriticalReview | null>(null)
   const [jobDescription, setJobDescription] = useState<string>('')
   const [parsedJob, setParsedJob] = useState<any>(null)
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollCountRef = useRef(0)
+
+  // Exponential backoff: 2s, 3s, 4.5s, 6.75s, 10s (capped)
+  const getPollingDelay = (attempt: number) => Math.min(2000 * Math.pow(1.5, attempt), 10000)
+
+  const schedulePoll = useCallback(() => {
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+    const delay = getPollingDelay(pollCountRef.current)
+    pollTimeoutRef.current = setTimeout(() => {
+      pollCountRef.current++
+      checkStatus()
+    }, delay)
+  }, [])
 
   useEffect(() => {
     if (jobId) {
+      pollCountRef.current = 0
       checkStatus()
-      const interval = setInterval(checkStatus, 5000)
-      return () => clearInterval(interval)
+    }
+    return () => {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
     }
   }, [jobId])
 
@@ -76,12 +92,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
     setError(null)
 
     try {
-      const session = await fetchAuthSession()
-      const credentials = session.credentials
-
-      if (!credentials) {
-        throw new Error('No credentials available')
-      }
+      const credentials = await getCredentials()
 
       const sfnClient = new SFNClient({
         region: awsConfig.region,
@@ -102,10 +113,16 @@ export default function Results({ jobId, userId }: ResultsProps) {
       if (response.status === 'SUCCEEDED') {
         await fetchResults(credentials)
         await fetchAnalysisData(credentials)
+      } else if (response.status === 'RUNNING') {
+        // Schedule next poll with backoff
+        schedulePoll()
       }
+      // FAILED and SUCCEEDED: stop polling
     } catch (err) {
       console.error('Status check error:', err)
       setError(err instanceof Error ? err.message : 'Failed to check status')
+      // Retry on error too, with backoff
+      schedulePoll()
     } finally {
       setLoading(false)
     }
