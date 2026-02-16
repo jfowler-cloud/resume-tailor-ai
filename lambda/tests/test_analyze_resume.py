@@ -72,13 +72,27 @@ def test_analyze_resume_s3_error(mock_bedrock):
     """Test handling of S3 error"""
     with patch('analyze_resume.s3') as mock_s3:
         mock_s3.get_object.side_effect = Exception('S3 Error')
-        
+
         event = {
             'jobId': 'test-123',
             'resumeS3Keys': ['resume.md'],
             'parsedJob': {}
         }
-        
+
         result = handler(event, None)
-        
+
         assert result['statusCode'] == 500
+
+def test_analyze_resume_single_string_key(mock_s3, mock_bedrock):
+    """Test analysis with single string resumeS3Key (not array)"""
+    event = {
+        'jobId': 'test-456',
+        'userId': 'user-1',
+        'resumeS3Key': 'uploads/user-1/resume.md',  # String instead of array
+        'parsedJob': {'requiredSkills': ['Python']}
+    }
+
+    result = handler(event, None)
+
+    assert result['statusCode'] == 200
+    assert mock_s3.get_object.called

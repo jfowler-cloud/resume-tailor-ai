@@ -67,6 +67,16 @@ Done.
         result = extract_json_from_text(text)
         assert result == [1, 2, 3, 4, 5]
 
+    def test_generic_code_block_with_invalid_json_falls_through(self):
+        """Test that invalid JSON in generic code block falls through to strategy 3"""
+        # Generic code block has invalid JSON, but valid JSON exists later
+        text = '''```
+not valid json here
+```
+But valid here: {"success": true}'''
+        result = extract_json_from_text(text)
+        assert result == {"success": True}
+
     # Strategy 3: First {...} or [...] substring
     def test_json_object_in_text(self):
         """Test extraction of first JSON object from plain text"""

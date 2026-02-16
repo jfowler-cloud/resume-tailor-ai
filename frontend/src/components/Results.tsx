@@ -142,7 +142,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
         credentials: credentials
       })
 
-      // Extract timestamp from jobId (format: job-1770761916695)
+      // Extract timestamp from jobId (format: job-XXXXXXXXXXXXX)
       const timestamp = jobId!.split('-')[1]
 
       const response = await dynamoClient.send(
