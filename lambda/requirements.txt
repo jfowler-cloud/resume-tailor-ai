@@ -1,5 +1,5 @@
 # AWS SDK
-boto3==1.36.4
+boto3==1.42.49
 
 # Data validation and parsing
 pydantic==2.10.5
