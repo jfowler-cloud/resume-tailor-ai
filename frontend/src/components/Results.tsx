@@ -63,7 +63,7 @@ export default function Results({ jobId, userId }: ResultsProps) {
   const [parsedJob, setParsedJob] = useState<any>(null)
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollCountRef = useRef(0)
-  const checkStatusRef = useRef<() => Promise<void>>()
+  const checkStatusRef = useRef<(() => Promise<void>) | undefined>(undefined)
 
   const MAX_POLL_ATTEMPTS = 120 // ~15 min with exponential backoff
 
