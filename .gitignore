@@ -17,6 +17,7 @@ cdk.out
 .vscode
 .idea
 .claude
+.kiro
 *.swp
 *.swo
 *~
