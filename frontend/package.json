@@ -20,7 +20,7 @@
     "@aws-sdk/credential-providers": "^3.990.0",
     "@aws-sdk/lib-dynamodb": "^3.990.0",
     "@aws-sdk/util-dynamodb": "^3.987.0",
-    "@cloudscape-design/components": "^3.0.0",
+    "@cloudscape-design/components": "^3.0.1203",
     "@cloudscape-design/global-styles": "^1.0.0",
     "aws-amplify": "^6.16.2",
     "react": "^19.2.4",
