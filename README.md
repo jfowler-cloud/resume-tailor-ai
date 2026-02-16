@@ -33,7 +33,7 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 - 💾 **Download Capabilities** - Download resumes (Markdown) and cover letters
 - 🌓 **Dark Mode** - Toggle between light and dark themes
 - 💰 **Cost-Effective** - Runs for ~$1-2/month on AWS
-- ✅ **Fully Tested** - 10 frontend unit tests, 13 backend tests
+- ✅ **Fully Tested** - 10 frontend unit tests, 121 backend tests
 
 ---
 
