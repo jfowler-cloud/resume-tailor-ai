@@ -357,6 +357,13 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - 🐛 Fixed CI workflow for cost estimation (missing Node.js setup)
 - 🐛 Fixed TypeScript CI failures in frontend-build workflow
 - 📝 Added .gitignore for lambda test artifacts
+- 📦 **Dependency Updates:**
+  - AWS SDK group (6 packages) to 3.990.0
+  - @cloudscape-design/components to 3.0.1203
+  - boto3 to 1.42.49, markdown to 3.10.2, python-docx to 1.2.0
+  - aws-cdk to 2.1106.0, jsdom to 28.1.0
+  - @types/react to 19.2.14, @types/node to 25.2.3
+- ⏸️ **Deferred:** ESLint 10 upgrade blocked - `@typescript-eslint/eslint-plugin` v8.x only supports ESLint 8.x/9.x
 
 ### v2.2.0 - Dependency Updates & Test Improvements (Feb 2026)
 - ✨ Updated AWS Amplify packages to latest versions (6.15.0+)
