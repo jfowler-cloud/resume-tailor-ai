@@ -281,6 +281,14 @@ pip install -r requirements-test.txt
 PYTHONPATH=functions pytest tests/ -v --cov=functions
 ```
 
+**End-to-End Workflow Test:**
+```bash
+# Test the full Step Functions workflow with demo data
+pip install boto3 "botocore[crt]"
+python simple-test.py
+```
+This uploads a demo resume, runs the complete tailoring workflow, and verifies results in S3.
+
 ### Test Coverage
 - ✅ Frontend: 10/10 tests passing (22% coverage)
 - ✅ Backend: 33/33 tests passing (54% coverage)
@@ -340,6 +348,15 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 ---
 
 ## 🚀 Recent Updates
+
+### v2.3.0 - Reliability & Error Handling Improvements (Feb 2026)
+- ✨ Consolidated markdown-to-HTML rendering into reusable utility
+- ✨ Hardened polling logic with better timeout handling
+- ✨ Improved JSON extraction with control character sanitization
+- ✨ Added CLI test script for backend workflow verification (`simple-test.py`)
+- 🐛 Fixed CI workflow for cost estimation (missing Node.js setup)
+- 🐛 Fixed TypeScript CI failures in frontend-build workflow
+- 📝 Added .gitignore for lambda test artifacts
 
 ### v2.2.0 - Dependency Updates & Test Improvements (Feb 2026)
 - ✨ Updated AWS Amplify packages to latest versions (6.15.0+)
