@@ -34,10 +34,24 @@ open htmlcov/index.html
 - `tests/test_generate_resume.py` - Tests for resume generation (3 tests)
 - `tests/test_save_results.py` - Tests for DynamoDB operations (3 tests)
 - `tests/test_validation.py` - Tests for input validation (20 tests)
+- `tests/test_ats_optimize.py` - Tests for ATS optimization (8 tests)
+- `tests/test_convert_to_pdf.py` - Tests for PDF conversion (12 tests)
+- `tests/test_cover_letter.py` - Tests for cover letter generation (10 tests)
+- `tests/test_critical_review.py` - Tests for critical review (10 tests)
+- `tests/test_extract_json.py` - Tests for JSON extraction (26 tests)
+- `tests/test_notify.py` - Tests for email notifications (12 tests)
+- `tests/test_refine_resume.py` - Tests for resume refinement (10 tests)
 
 ### Coverage Results
-- **Total**: 33 tests, 54% coverage
+- **Total**: 121 tests, 96% coverage
+- `ats_optimize.py` - 100%
+- `convert_to_pdf.py` - 100%
+- `cover_letter.py` - 100%
+- `critical_review.py` - 100%
+- `notify.py` - 100%
 - `parse_job.py` - 100%
+- `refine_resume.py` - 100%
+- `extract_json.py` - 96%
 - `validation.py` - 95%
 - `save_results.py` - 93%
 - `analyze_resume.py` - 92%
@@ -77,9 +91,9 @@ npm run test:coverage
 
 | Category | Tests | Coverage | Status |
 |----------|-------|----------|--------|
-| **Backend** | 33 | 54% | ✅ All Passing |
+| **Backend** | 121 | 96% | ✅ All Passing |
 | **Frontend** | 10 | 22% | ✅ All Passing |
-| **Total** | **43** | - | ✅ **All Passing** |
+| **Total** | **131** | - | ✅ **All Passing** |
 
 ## Quick Test Scripts
 

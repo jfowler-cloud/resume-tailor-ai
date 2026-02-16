@@ -6,7 +6,7 @@
 [![CDK](https://img.shields.io/badge/CDK-TypeScript-blue)](https://aws.amazon.com/cdk/)
 [![Claude](https://img.shields.io/badge/Claude-Opus%204.5-purple)](https://www.anthropic.com/claude)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
-[![Tests](https://img.shields.io/badge/Tests-43%20passing-brightgreen)](https://github.com)
+[![Tests](https://img.shields.io/badge/Tests-121%20passing-brightgreen)](https://github.com)
 [![Built](https://img.shields.io/badge/Built-In%201%20Day-success)](https://github.com)
 
 ---
@@ -291,9 +291,9 @@ This uploads a demo resume, runs the complete tailoring workflow, and verifies r
 
 ### Test Coverage
 - ✅ Frontend: 10/10 tests passing (22% coverage)
-- ✅ Backend: 33/33 tests passing (54% coverage)
+- ✅ Backend: 121/121 tests passing (96% coverage)
 - ✅ Components: ResumeUpload, JobAnalysis, ResumeManagement
-- ✅ Lambda Functions: ParseJob (100%), Validation (95%), SaveResults (93%), AnalyzeResume (92%), GenerateResume (88%)
+- ✅ Lambda Functions: 8 functions at 100% coverage, 4 functions at 88-96% coverage
 
 See [TESTING.md](TESTING.md) for detailed testing guide.
 
@@ -328,7 +328,7 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - ✅ Enhanced results display with critique data
 - ✅ PDF print functionality with markdown rendering
 - ✅ Reusable tailored resumes
-- ✅ Unit tests (43 total: 10 frontend, 33 backend)
+- ✅ Unit tests (131 total: 10 frontend, 121 backend)
 - ✅ All features tested and verified
 
 **Development Highlights:**
