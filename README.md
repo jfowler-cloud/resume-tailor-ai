@@ -30,6 +30,26 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 
 **Built for iteration speed** - leveraging AI-assisted development with Claude Code, this project went from concept to beta-testable application in a single day, then to production-ready with 99% test coverage within a week. The application itself uses Claude Opus 4.5 for superior resume analysis and generation quality.
 
+### Our Philosophy: Honest Career Growth, Not a Shortcut
+
+> **This tool is not designed to help you cheat your way into a job.**
+>
+> Resume Tailor AI is built to **preserve your authentic voice** while helping you present your real experience in its best light. It highlights your genuine strengths, honestly identifies gaps between your background and a role's requirements, and provides meaningful, critical feedback you can act on.
+>
+> When the AI finds areas where you fall short, that's not a failure — it's a roadmap. The fit scores, missing skills, and recommendations are designed to **steer you toward the learning and development** you may need to genuinely become the right candidate. The goal is to help you grow into the role, not fake your way into it.
+>
+> **What this tool does:**
+> - Surfaces your real strengths so you don't undersell yourself
+> - Identifies skill gaps so you know exactly where to invest your time
+> - Provides critical, actionable feedback — not empty encouragement
+> - Tailors your language and presentation while keeping your voice intact
+> - Gives you a clear picture of your competitive standing
+>
+> **What this tool does NOT do:**
+> - Fabricate skills or experience you don't have
+> - Game ATS systems with keyword stuffing
+> - Replace the real work of learning and professional growth
+
 ### ✨ Key Features
 
 - 🔐 **User Authentication** - Cognito with email/password
