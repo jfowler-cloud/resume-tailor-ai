@@ -7,7 +7,7 @@
 [![Claude](https://img.shields.io/badge/Claude-Opus%204.5-purple)](https://www.anthropic.com/claude)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
 [![Tests](https://img.shields.io/badge/Tests-212%20passing-brightgreen)](https://github.com)
-[![Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen)](https://github.com)
+[![Coverage](https://img.shields.io/badge/Coverage-98%25-brightgreen)](https://github.com)
 [![Beta](https://img.shields.io/badge/Beta-1%20Day-success)](https://github.com)
 [![Production](https://img.shields.io/badge/Production-3%20Days-success)](https://github.com)
 
@@ -18,7 +18,7 @@
 | Milestone | Timeline | Highlights |
 |-----------|----------|------------|
 | **Beta Ready** | **1 Day** | Full-stack app with AI integration, ready for user testing |
-| **Production Ready** | **3 Days** | 99% test coverage, enterprise features, comprehensive docs |
+| **Production Ready** | **3 Days** | 98% test coverage, enterprise features, comprehensive docs |
 
 > This project demonstrates **rapid full-stack development** using modern AI-assisted workflows (Claude Code + AWS CDK), achieving production-quality results in a fraction of traditional timelines.
 
@@ -28,7 +28,7 @@
 
 An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Opus 4.5. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
 
-**Built for iteration speed** - leveraging AI-assisted development with Claude Code, this project went from concept to beta-testable application in a single day, then to production-ready with 99% test coverage within a week. The application itself uses Claude Opus 4.5 for superior resume analysis and generation quality.
+**Built for iteration speed** - leveraging AI-assisted development with Claude Code, this project went from concept to beta-testable application in a single day, then to production-ready with 98% test coverage within a week. The application itself uses Claude Opus 4.5 for superior resume analysis and generation quality.
 
 
 ### My Philosophy: Honest Career Growth, Not a Shortcut
