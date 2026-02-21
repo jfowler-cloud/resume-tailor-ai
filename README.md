@@ -94,13 +94,15 @@ npm install
 npx cdk bootstrap
 
 # Deploy infrastructure (choose mode)
-npx cdk deploy                              # Premium: Opus 4.5 for all (best quality)
-npx cdk deploy -c deploymentMode=OPTIMIZED  # Optimized: Mixed models (60% cost savings)
+npx cdk deploy                              # Testing: Haiku 3.0 for all (fastest, cheapest)
+npx cdk deploy -c deploymentMode=OPTIMIZED  # Optimized: Mixed models (50% cost savings)
+npx cdk deploy -c deploymentMode=PREMIUM    # Premium: Opus 4.5 for all (best quality)
 ```
 
 **Deployment Modes:**
-- **PREMIUM** (default): Claude Opus 4.5 for all functions (~$4-5/month)
-- **OPTIMIZED**: Mixed models for 60-70% cost savings (~$1-2/month)
+- **TESTING** (default): Claude Haiku 3.0 for all functions (~$0.50/month, 95% cheaper)
+- **OPTIMIZED**: Mixed models for balanced cost/quality (~$2-3/month)
+- **PREMIUM**: Claude Opus 4.5 for all functions (~$4-5/month, best quality)
 
 See [MODEL_DEPLOYMENT.md](docs/MODEL_DEPLOYMENT.md) for detailed comparison.
 
