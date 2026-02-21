@@ -2,12 +2,14 @@
  * Model Configuration for Resume Tailor
  * 
  * Defines which Claude models to use for each Lambda function.
- * Two deployment modes:
- * - PREMIUM: Uses Claude Opus 4.5 for all functions (best quality, higher cost)
+ * Three deployment modes:
+ * - TESTING: Uses Haiku 3.0 for all functions (fastest, cheapest, for development)
  * - OPTIMIZED: Uses cheaper models for simpler tasks (lower cost, good quality)
+ * - PREMIUM: Uses Claude Opus 4.5 for all functions (best quality, higher cost)
  */
 
 export enum DeploymentMode {
+  TESTING = 'TESTING',
   PREMIUM = 'PREMIUM',
   OPTIMIZED = 'OPTIMIZED'
 }
@@ -25,6 +27,16 @@ export interface ModelConfig {
  * Model configurations for different deployment modes
  */
 export const MODEL_CONFIGS: Record<DeploymentMode, ModelConfig> = {
+  // Testing: Haiku 3.0 for everything (fast and cheap for development)
+  [DeploymentMode.TESTING]: {
+    parseJob: 'anthropic.claude-3-haiku-20240307-v1:0',
+    analyzeResume: 'anthropic.claude-3-haiku-20240307-v1:0',
+    generateResume: 'anthropic.claude-3-haiku-20240307-v1:0',
+    atsOptimize: 'anthropic.claude-3-haiku-20240307-v1:0',
+    coverLetter: 'anthropic.claude-3-haiku-20240307-v1:0',
+    criticalReview: 'anthropic.claude-3-haiku-20240307-v1:0',
+  },
+  
   // Premium: Claude Opus 4.5 for everything (maximum reasoning)
   [DeploymentMode.PREMIUM]: {
     parseJob: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
@@ -69,18 +81,23 @@ export const MODEL_CONFIGS: Record<DeploymentMode, ModelConfig> = {
  * Claude Haiku 4.5:
  *   Input: $1.00 | Output: $5.00
  * 
- * Estimated savings with OPTIMIZED mode: ~50-60%
+ * Claude Haiku 3.0:
+ *   Input: $0.25 | Output: $1.25
+ * 
+ * Estimated savings:
+ * - TESTING vs PREMIUM: ~95% cost reduction
+ * - OPTIMIZED vs PREMIUM: ~50-60% cost reduction
  */
 
 /**
  * Get model configuration for deployment
  */
 export function getModelConfig(mode?: string): ModelConfig {
-  const deploymentMode = (mode?.toUpperCase() as DeploymentMode) || DeploymentMode.PREMIUM;
+  const deploymentMode = (mode?.toUpperCase() as DeploymentMode) || DeploymentMode.TESTING;
   
   if (!MODEL_CONFIGS[deploymentMode]) {
-    console.warn(`Unknown deployment mode: ${mode}, defaulting to PREMIUM`);
-    return MODEL_CONFIGS[DeploymentMode.PREMIUM];
+    console.warn(`Unknown deployment mode: ${mode}, defaulting to TESTING`);
+    return MODEL_CONFIGS[DeploymentMode.TESTING];
   }
   
   return MODEL_CONFIGS[deploymentMode];

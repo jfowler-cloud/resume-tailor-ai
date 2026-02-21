@@ -36,12 +36,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Python
+#.Python
+.venv/
+venv/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+.venv/
+venv/
 lambda/functions/*.zip
 lambda/layers/**/site-packages/
 lambda/layers/**/__pycache__/

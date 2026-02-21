@@ -17,8 +17,8 @@ export class ResumeTailorStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Get deployment mode from context (default: PREMIUM)
-    const deploymentMode = this.node.tryGetContext('deploymentMode') || 'PREMIUM';
+    // Get deployment mode from context (default: TESTING)
+    const deploymentMode = this.node.tryGetContext('deploymentMode') || 'TESTING';
     const modelConfig = getModelConfig(deploymentMode);
     
     // Determine if this is the feature stack
