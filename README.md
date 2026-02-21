@@ -28,7 +28,7 @@
 
 An intelligent resume tailoring platform that analyzes job descriptions, evaluates resume fit, and generates perfectly tailored resumes using Claude Opus 4.5. Built with AWS serverless architecture for maximum efficiency and minimal cost (~$1-2/month).
 
-**Built for iteration speed** - leveraging AI-assisted development with Claude Code, this project went from concept to beta-testable application in a single day, then to production-ready with 98% test coverage within a week. The application itself uses Claude Opus 4.5 for superior resume analysis and generation quality.
+**Built for iteration speed** - leveraging AI-assisted development with Claude Code, this project went from concept to beta-testable application in a single day, then to production-ready with 98% test coverage within 3 days. The application itself uses Claude Opus 4.5 for superior resume analysis and generation quality.
 
 
 ### My Philosophy: Honest Career Growth, Not a Shortcut
@@ -66,7 +66,7 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 - 💾 **Download Capabilities** - Download resumes (Markdown) and cover letters
 - 🌓 **Dark Mode** - Toggle between light and dark themes
 - 💰 **Cost-Effective** - Runs for ~$1-2/month on AWS
-- ✅ **99% Test Coverage** - 212 tests (130 backend, 82 frontend) with comprehensive coverage
+- ✅ **98% Test Coverage** - 212 tests (130 backend, 82 frontend) with comprehensive coverage
 
 ---
 
@@ -367,7 +367,7 @@ See [TESTING.md](TESTING.md) for detailed testing guide.
 ## 🎯 Current Status
 
 ### ✅ Production Ready (v2.0.0)
-Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted development:
+Beta in **1 day**, production-ready in **3 days** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted development:
 
 **Core Features:**
 - ✅ Backend infrastructure deployed (S3, Lambda, Step Functions, DynamoDB)
@@ -380,7 +380,7 @@ Built in **1 day** using AWS Kiro CLI + Claude Sonnet 4.5 for AI-assisted develo
 - ✅ Enhanced results display with critique data
 - ✅ PDF print functionality with markdown rendering
 - ✅ Reusable tailored resumes
-- ✅ Unit tests (131 total: 10 frontend, 121 backend)
+- ✅ Unit tests (212 total: 82 frontend, 130 backend)
 - ✅ All features tested and verified
 
 **Development Highlights:**
@@ -483,6 +483,23 @@ For issues, questions, or suggestions:
 - Open an issue on GitHub
 - Check the documentation in the `/docs` folder
 - Review the testing guide in `TESTING.md`
+
+---
+
+## 🔗 Related Projects
+
+- **[Scaffold AI](https://github.com/jfowler-cloud/scaffold-ai)** - AI-powered AWS architecture designer with LangGraph (1 day, 116 tests, 67% coverage)
+- **[Career Path Architect](https://github.com/jfowler-cloud/career-path-architect)** - AI-powered career planning with LangGraph (2 hours, 142 tests, 99% coverage)
+
+**Together, these projects form a complete AI-powered career development platform.**
+
+---
+
+## 👤 Author
+
+**James Fowler**
+- GitHub: [@jfowler-cloud](https://github.com/jfowler-cloud)
+- LinkedIn: [James Fowler - AWS Cloud Architect & DevOps Professional](https://www.linkedin.com/in/james-fowler-aws-cloud-architect-dev-ops-professional/)
 
 ---
 
