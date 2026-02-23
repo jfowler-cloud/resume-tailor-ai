@@ -16,7 +16,7 @@ markdown==3.10.2
 pytest==8.3.4
 pytest-cov==6.0.0
 pytest-mock==3.14.0
-moto==5.0.27  # AWS service mocking
+moto==5.1.21  # AWS service mocking
 
 # Type hints
 typing-extensions==4.12.2
