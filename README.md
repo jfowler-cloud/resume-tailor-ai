@@ -76,7 +76,7 @@ An intelligent resume tailoring platform that analyzes job descriptions, evaluat
 
 - AWS Account with credentials configured (`aws configure`)
 - Node.js 24+ and npm
-- Python 3.14+
+- Python 3.13+
 - jq (JSON processor) - `sudo apt install jq` or `brew install jq`
 
 ### Deploy Backend (5 minutes)
@@ -270,7 +270,7 @@ AWS SDK v3 (S3, Step Functions, DynamoDB)
 | **Frontend** | React 19 + TypeScript + Vite | User interface |
 | **UI Components** | Cloudscape Design System | AWS-native components |
 | **Authentication** | AWS Cognito | User management |
-| **API** | Lambda (Python 3.14) | Serverless backend |
+| **API** | Lambda (Python 3.13) | Serverless backend |
 | **Orchestration** | Step Functions | Workflow management |
 | **AI** | Amazon Bedrock (Claude Opus 4.5) | Resume analysis & generation |
 | **Storage** | S3 + DynamoDB | Data persistence |
