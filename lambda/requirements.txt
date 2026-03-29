@@ -2,7 +2,7 @@
 boto3==1.42.49
 
 # Data validation and parsing
-pydantic==2.10.5
+pydantic==2.12.5
 
 # PDF parsing
 PyPDF2==3.0.1
